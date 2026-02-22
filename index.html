@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIM GRIND TRACKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07090b;--surf:#0e1318;--surf2:#131c22;--surf3:#18242e;
+  --bor:#1e2e3a;--bor2:#2a3e50;
+  --acc:#39ff88;--alo:rgba(57,255,136,.08);--amd:rgba(57,255,136,.15);
+  --red:#ff3c3c;--yel:#f0c040;--blu:#64b4ff;--pur:#c084fc;--ora:#ff8c42;
+  --text:#d8eee4;--mut:#4a6878;--mut2:#1e3040;
+  --fh:"Bebas Neue",sans-serif;--fm:"Share Tech Mono",monospace;--fu:"Barlow Condensed",sans-serif;
+}
+*{scrollbar-width:thin;scrollbar-color:var(--bor2) transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fu);min-height:100vh;overflow-x:hidden;font-size:16px;background-image:url('https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=1920&q=80&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed;}
+body::after{content:"";position:fixed;inset:0;background:rgba(4,7,9,0.91);pointer-events:none;z-index:0}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 6px);pointer-events:none;z-index:999}
+.corner{position:fixed;width:36px;height:36px;z-index:998;opacity:.3}
+.ctlx{top:12px;left:12px;border-top:1px solid var(--acc);border-left:1px solid var(--acc)}
+.ctrx{top:12px;right:12px;border-top:1px solid var(--acc);border-right:1px solid var(--acc)}
+.cblx{bottom:12px;left:12px;border-bottom:1px solid var(--acc);border-left:1px solid var(--acc)}
+.cbrx{bottom:12px;right:12px;border-bottom:1px solid var(--acc);border-right:1px solid var(--acc)}
+/* LOADING */
+#ls{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:24px;transition:opacity .5s}
+#ls.h{opacity:0;pointer-events:none}
+.ll{font-family:var(--fh);font-size:5rem;letter-spacing:.12em;color:var(--acc);text-shadow:0 0 50px rgba(57,255,136,.4)}
+.lb{width:240px;height:3px;background:var(--bor);border-radius:2px;overflow:hidden}
+.lf{height:100%;background:var(--acc);animation:la 1.5s ease forwards;box-shadow:0 0 12px var(--acc)}
+@keyframes la{from{width:0}to{width:100%}}
+.lt{font-family:var(--fm);font-size:.75rem;letter-spacing:.25em;color:var(--mut);text-transform:uppercase}
+/* LAYOUT */
+.app{max-width:960px;margin:0 auto;padding:40px 24px 100px;opacity:0;transition:opacity .4s;position:relative;z-index:1}
+/* HEADER */
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.logo{font-family:var(--fh);font-size:clamp(3rem,7vw,5.5rem);letter-spacing:.08em;line-height:.9;color:var(--acc);text-shadow:0 0 24px rgba(57,255,136,.5)}
+.logo span{color:var(--text);opacity:.3}
+.logo-sub{font-family:var(--fm);font-size:.7rem;letter-spacing:.28em;color:var(--mut);margin-top:6px;text-transform:uppercase}
+/* PLAYER BOX */
+.pbox{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:14px 18px;min-width:210px;position:relative}
+.pbox::before{content:"ИГРОК";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px}
+.pin{background:transparent;border:none;border-bottom:1px solid var(--bor2);color:var(--acc);font-family:var(--fm);font-size:1.05rem;letter-spacing:.1em;width:100%;outline:none;padding:5px 0;transition:border-color .2s}
+.pin:focus{border-color:var(--acc)}
+.pin::placeholder{color:var(--mut);font-size:.85rem}
+.admin-badge{display:inline-block;background:rgba(192,132,252,.15);border:1px solid var(--pur);color:var(--pur);font-family:var(--fm);font-size:.62rem;letter-spacing:.15em;padding:2px 8px;border-radius:2px;margin-left:8px}
+.dot{display:inline-block;width:7px;height:7px;background:var(--acc);border-radius:50%;margin-right:7px;animation:blink 1.5s infinite;box-shadow:0 0 7px var(--acc)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.olbl{font-family:var(--fm);font-size:.65rem;letter-spacing:.12em;color:var(--mut);margin-top:9px;display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.title-display{font-family:var(--fm);font-size:.68rem;letter-spacing:.1em;color:var(--yel);margin-top:5px;cursor:pointer;transition:color .2s;text-shadow:0 0 10px rgba(240,192,64,.3)}
+.title-display:hover{color:#fff}
+.rank-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--fh);font-size:.95rem;letter-spacing:.1em;padding:3px 10px;border-radius:3px;margin-top:6px;border:1px solid currentColor}
+/* STREAK */
+.sbar{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:16px 22px;margin-bottom:14px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative}
+.sbar::before{content:"STREAK";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px}
+.sf{font-size:2rem;animation:flk 1s ease-in-out infinite alternate}
+@keyframes flk{from{transform:scale(1) rotate(-3deg)}to{transform:scale(1.15) rotate(3deg)}}
+.snum{font-family:var(--fh);font-size:3.2rem;letter-spacing:.05em;line-height:1;color:#ff6b00;text-shadow:0 0 24px rgba(255,107,0,.5)}
+.si{flex:1}
+.sl{font-family:var(--fm);font-size:.65rem;letter-spacing:.16em;color:var(--mut);text-transform:uppercase}
+.sd{font-family:var(--fu);font-weight:700;font-size:1rem;color:var(--text);margin-top:2px}
+.sdots{display:flex;gap:4px;flex-wrap:wrap}
+.sdot{width:18px;height:18px;border-radius:3px;border:1px solid var(--bor2);background:var(--mut2);font-size:.56rem;display:flex;align-items:center;justify-content:center;color:transparent;transition:all .2s}
+.sdot.on{background:#ff6b00;border-color:#ff8c00;box-shadow:0 0 6px rgba(255,107,0,.5);color:#fff}
+.sdot.td{border-color:var(--acc);animation:pb .8s infinite alternate}
+@keyframes pb{from{border-color:var(--acc)}to{border-color:rgba(57,255,136,.25)}}
+/* DATE BAR */
+.dbar{display:flex;align-items:center;gap:12px;margin:14px 0;flex-wrap:wrap}
+.dlbl{font-family:var(--fm);font-size:.67rem;letter-spacing:.18em;color:var(--mut);text-transform:uppercase}
+input[type="date"]{background:var(--surf);border:1px solid var(--bor2);color:var(--acc);font-family:var(--fm);font-size:.88rem;padding:8px 14px;border-radius:3px;cursor:pointer;outline:none;transition:border-color .2s}
+input[type="date"]:focus{border-color:var(--acc)}
+.ddisp{font-family:var(--fh);font-size:1.5rem;letter-spacing:.12em;color:var(--text);opacity:.6}
+.sst{font-family:var(--fm);font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;margin-left:auto;display:flex;align-items:center;gap:6px}
+.sst.ok{color:var(--acc)}.sst.ing{color:var(--yel)}.sst.err{color:var(--red)}.sst.live{color:var(--acc)}
+/* ADMIN */
+.admin-panel{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.2);border-radius:5px;padding:14px 18px;margin-bottom:14px;position:relative}
+.admin-panel::before{content:"ADMIN VIEW";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--pur);padding:0 7px}
+.aplayer-btn{background:transparent;border:1px solid var(--bor2);color:var(--mut);font-family:var(--fm);font-size:.7rem;letter-spacing:.09em;padding:6px 14px;border-radius:2px;cursor:pointer;transition:all .15s;text-transform:uppercase}
+.aplayer-btn:hover{border-color:var(--pur);color:var(--pur)}
+.aplayer-btn.active{border-color:var(--pur);color:var(--pur);background:rgba(192,132,252,.1)}
+/* PROGRESS */
+.pw{margin-bottom:18px}
+.pm{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.pn{font-family:var(--fh);font-size:2.6rem;letter-spacing:.1em;color:var(--acc);line-height:1;text-shadow:0 0 20px rgba(57,255,136,.4)}
+.pden{font-family:var(--fh);font-size:1.1rem;color:var(--mut)}
+.pp{font-family:var(--fm);font-size:.7rem;color:var(--mut);letter-spacing:.12em}
+.pt{width:100%;height:4px;background:var(--bor);border-radius:2px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,var(--acc),#00ffcc);border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(57,255,136,.6);position:relative}
+.pf::after{content:"";position:absolute;right:0;top:-2px;width:4px;height:8px;background:#fff;border-radius:1px;box-shadow:0 0 10px var(--acc)}
+/* DAY GRADE */
+.dgb{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;position:relative}
+.dgb::before{content:"ИТОГ ДНЯ";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px}
+.dgl{font-family:var(--fh);font-size:4.5rem;line-height:1;letter-spacing:.04em;transition:color .3s,text-shadow .3s;text-shadow:0 0 34px currentColor;min-width:80px;text-align:center}
+.dgi{flex:1;min-width:150px}
+.dgll{font-family:var(--fm);font-size:.65rem;letter-spacing:.14em;color:var(--mut);text-transform:uppercase;margin-bottom:3px}
+.dgd{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--text);letter-spacing:.05em}
+.dgtitle{font-family:var(--fm);font-size:.82rem;letter-spacing:.12em;margin-top:7px;font-weight:bold}
+.dgbr{font-family:var(--fm);font-size:.62rem;color:var(--mut);margin-top:5px;letter-spacing:.07em;line-height:1.8}
+.gSP{color:#ffe44d}.gS{color:gold}.gAP{color:#39ff88}.gA{color:#22dd66}
+.gBP{color:#64b4ff}.gB{color:#4090dd}.gCP{color:#f0c040}.gC{color:#d4a020}
+.gDP{color:#ff6644}.gD{color:#ff3c3c}.gF{color:#884444}.gX{color:var(--mut2)}
+/* BLOCK */
+.blk{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:14px 18px;margin-bottom:14px;position:relative}
+.blk-lbl{position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px;text-transform:uppercase}
+.blk-lbl.val{color:#ff4655}
+/* EXPECTATIONS */
+.exp-goals{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.exp-goal-btn{font-family:var(--fm);font-size:.68rem;letter-spacing:.07em;padding:5px 12px;border-radius:3px;border:1px solid var(--bor2);color:var(--mut);cursor:pointer;transition:all .15s;text-transform:uppercase;background:transparent}
+.exp-goal-btn.sel{border-color:var(--acc);color:var(--acc);background:var(--alo)}
+.exp-note{width:100%;background:transparent;border:none;border-bottom:1px solid var(--bor2);color:var(--text);font-family:var(--fm);font-size:.8rem;outline:none;padding:6px 0;margin-top:4px;transition:border-color .2s}
+.exp-note:focus{border-color:var(--acc)}
+.exp-note::placeholder{color:var(--mut2)}
+/* VAL STATS */
+.val-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.val-field{display:flex;flex-direction:column;gap:4px}
+.val-label{font-family:var(--fm);font-size:.6rem;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
+.val-in{background:transparent;border:none;border-bottom:1px solid var(--bor2);color:#ff6677;font-family:var(--fm);font-size:.92rem;outline:none;padding:4px 0;width:100%;transition:border-color .2s}
+.val-in:focus{border-color:#ff4655}
+.val-in::placeholder{color:var(--mut2);font-size:.75rem}
+.val-save{margin-top:12px;background:transparent;border:1px solid #ff4655;color:#ff4655;font-family:var(--fm);font-size:.65rem;letter-spacing:.14em;padding:5px 16px;cursor:pointer;border-radius:2px;transition:all .15s;text-transform:uppercase}
+.val-save:hover{background:rgba(255,70,85,.1)}
+/* VALORANT AUTO FETCH */
+
+/* COMMENT */
+.dci{width:100%;background:transparent;border:none;color:var(--text);font-family:var(--fm);font-size:.82rem;line-height:1.7;resize:none;height:54px;outline:none;letter-spacing:.04em}
+.dci::placeholder{color:var(--mut2)}
+.dcm{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+.dch{font-family:var(--fm);font-size:.58rem;color:var(--mut2);letter-spacing:.1em}
+.dcs{background:transparent;border:1px solid var(--bor2);color:var(--mut);font-family:var(--fm);font-size:.62rem;letter-spacing:.12em;padding:4px 12px;cursor:pointer;border-radius:2px;transition:all .15s;text-transform:uppercase}
+.dcs:hover{border-color:var(--acc);color:var(--acc)}
+/* WEEK GOALS */
+.wgl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.wgt{font-family:var(--fm);font-size:.65rem;letter-spacing:.07em;padding:4px 10px;border-radius:3px;border:1px solid var(--bor2);color:var(--mut);cursor:pointer;transition:all .15s;text-transform:uppercase;background:transparent}
+.wgt.sel{border-color:var(--acc);color:var(--acc);background:var(--alo)}
+.wgh{font-family:var(--fm);font-size:.6rem;color:var(--mut2);letter-spacing:.1em}
+/* TABS */
+.tabs{display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid var(--bor);overflow-x:auto}
+.tbn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--mut);font-family:var(--fm);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:9px 18px 10px;cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap}
+.tbn.act{color:var(--acc);border-bottom-color:var(--acc)}
+.tbn:hover:not(.act){color:var(--text)}
+.tp{display:none}.tp.act{display:block}
+/* SECTION LABEL */
+.slbl{font-family:var(--fm);font-size:.62rem;letter-spacing:.2em;color:var(--mut);text-transform:uppercase;padding:5px 0 10px;border-bottom:1px solid var(--bor);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.eqb{background:transparent;border:1px solid var(--bor2);color:var(--mut);font-family:var(--fm);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;cursor:pointer;border-radius:2px;transition:all .15s}
+.eqb:hover{border-color:var(--acc);color:var(--acc)}
+/* QUEST ROWS */
+.ql{display:flex;flex-direction:column;gap:2px}
+.qr{display:grid;grid-template-columns:28px 1fr auto auto auto;border:1px solid transparent;border-radius:4px;overflow:hidden;transition:border-color .2s,background .2s;animation:fs .28s ease both}
+@keyframes fs{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.qr:hover{border-color:var(--bor2);background:var(--alo)}
+.qr.done{border-color:rgba(57,255,136,.22);background:rgba(57,255,136,.04)}
+
+.qnum{display:flex;align-items:flex-start;justify-content:center;padding-top:11px;font-family:var(--fh);font-size:.88rem;color:var(--mut2);background:rgba(0,0,0,.2);letter-spacing:.05em}
+.qr.done .qnum{color:var(--acc)}
+.qbody{padding:9px 14px;display:flex;flex-direction:column;gap:3px}
+.qtitle{font-family:var(--fu);font-weight:700;font-size:.98rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.qr.done .qtitle{color:var(--acc)}
+.badge{font-family:var(--fm);font-size:.56rem;letter-spacing:.1em;padding:2px 6px;border-radius:1px}
+.bdone{color:#000;background:var(--acc)}
+
+.bgoal{color:var(--yel);border:1px solid rgba(240,192,64,.35);background:rgba(240,192,64,.06)}
+.wlist{display:flex;gap:3px;flex-wrap:wrap;margin-left:auto}
+.wtag{font-family:var(--fm);font-size:.56rem;color:var(--acc);background:var(--alo);border:1px solid rgba(57,255,136,.2);padding:1px 5px;border-radius:2px}
+.qdesc{font-family:var(--fu);font-weight:300;font-size:.82rem;color:var(--mut);line-height:1.45}
+/* GRADE PICKER */
+.gp{display:flex;gap:2px;align-items:center;padding:0 7px;border-left:1px solid var(--bor)}
+.gbtn{background:transparent;border:1px solid transparent;font-family:var(--fh);font-size:.88rem;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:2px;transition:all .12s;color:var(--mut2)}
+.gbtn:hover{border-color:var(--bor2);color:var(--text)}
+.gbtn.aSP{background:rgba(255,228,77,.15);border-color:#ffe44d;color:#ffe44d}
+.gbtn.aS{background:rgba(255,215,0,.15);border-color:gold;color:gold}
+.gbtn.aAP{background:rgba(57,255,136,.15);border-color:var(--acc);color:var(--acc)}
+.gbtn.aA{background:rgba(34,221,102,.12);border-color:#22dd66;color:#22dd66}
+.gbtn.aBP{background:rgba(100,180,255,.15);border-color:var(--blu);color:var(--blu)}
+.gbtn.aB{background:rgba(64,144,221,.12);border-color:#4090dd;color:#4090dd}
+.gbtn.aCP{background:rgba(240,192,64,.12);border-color:var(--yel);color:var(--yel)}
+.gbtn.aC{background:rgba(212,160,32,.1);border-color:#d4a020;color:#d4a020}
+.gbtn.aDP{background:rgba(255,102,68,.12);border-color:#ff6644;color:#ff6644}
+.gbtn.aD{background:rgba(255,60,60,.1);border-color:var(--red);color:var(--red)}
+.gbtn.aF{background:rgba(136,68,68,.1);border-color:#884444;color:#884444}
+/* QUEST ACTIONS */
+.qa{display:flex;flex-direction:column;border-left:1px solid var(--bor)}
+.qbtn{flex:1;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;font-size:.9rem;color:var(--mut);min-width:44px}
+.qbtn.del{color:var(--mut2);font-size:.7rem;min-width:28px}
+.qbtn.del:hover{color:var(--red);background:rgba(255,60,60,.08)}
+.qbtn:hover{background:rgba(255,255,255,.04)}
+.qbtn.ck{font-size:1.05rem}
+.qr.done .qbtn.ck{color:var(--acc);background:var(--alo)}
+.qbtn.non{color:var(--yel)}
+/* NOTE PANEL */
+.np{grid-column:1/-1;border-top:1px solid var(--bor);background:rgba(0,0,0,.25);display:none}
+.np.op{display:block}
+.nh{padding:8px 14px 4px;display:flex;flex-direction:column;gap:4px}
+.ne{font-family:var(--fm);font-size:.72rem;line-height:1.5;color:#8ab8a0;display:grid;grid-template-columns:auto 1fr;gap:0 9px}
+.nm{color:var(--mut);white-space:nowrap;font-size:.64rem;padding-top:1px}
+.nn{font-family:var(--fm);font-size:.66rem;color:var(--mut2);letter-spacing:.1em;padding:6px 14px}
+.nc{display:flex;border-top:1px solid var(--bor)}
+textarea.ni{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--fm);font-size:.76rem;line-height:1.5;resize:none;height:44px;outline:none;padding:9px 14px}
+textarea.ni::placeholder{color:var(--mut2)}
+.ns{background:transparent;border:none;border-left:1px solid var(--bor);color:var(--mut);font-family:var(--fm);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;padding:0 14px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ns:hover{color:var(--acc);background:var(--alo)}
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mbg.op{display:flex}
+.modal{background:#0a1218;border:1px solid var(--bor2);border-radius:7px;padding:28px;width:min(560px,95vw);position:relative;max-height:86vh;overflow-y:auto}
+.mt{font-family:var(--fh);font-size:1.6rem;letter-spacing:.1em;color:var(--acc);margin-bottom:18px}
+.mc{position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--mut);font-size:1.1rem;cursor:pointer;transition:color .15s}
+.mc:hover{color:var(--red)}
+.eqi{background:var(--surf);border:1px solid var(--bor);border-radius:3px;padding:10px 14px;margin-bottom:5px}
+.er{display:flex;gap:8px;align-items:center;margin-bottom:5px}
+.ein{flex:1;background:transparent;border:none;border-bottom:1px solid var(--bor2);color:var(--text);font-family:var(--fm);font-size:.82rem;outline:none;padding:3px 0;transition:border-color .2s}
+.ein:focus{border-color:var(--acc)}
+.ein.di{font-size:.72rem;color:var(--mut)}
+
+.msb{margin-top:14px;background:var(--acc);border:none;color:#000;font-family:var(--fh);font-size:1.1rem;letter-spacing:.12em;padding:10px 26px;cursor:pointer;border-radius:4px;transition:opacity .15s;width:100%}
+.msb:hover{opacity:.85}
+.add-quest-btn{background:transparent;border:1px dashed var(--bor2);color:var(--mut);font-family:var(--fm);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:9px;cursor:pointer;border-radius:3px;width:100%;transition:all .15s;margin-top:5px}
+.add-quest-btn:hover{border-color:var(--acc);color:var(--acc)}
+.del-quest-btn{background:transparent;border:none;color:var(--mut);font-size:.76rem;cursor:pointer;padding:0 5px;transition:color .15s}
+.del-quest-btn:hover{color:var(--red)}
+/* RANK SYSTEM */
+.rank-section{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:18px 22px;margin-bottom:14px;position:relative}
+.rank-section::before{content:"РАНГ";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px}
+.rank-display{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.rank-icon{font-size:3rem}
+.rank-name{font-family:var(--fh);font-size:2.2rem;letter-spacing:.1em;line-height:1}
+.rank-xp{font-family:var(--fm);font-size:.68rem;color:var(--mut);letter-spacing:.1em;margin-top:4px}
+.rank-bar-wrap{flex:1;min-width:160px}
+.rank-bar-track{width:100%;height:6px;background:var(--bor);border-radius:3px;overflow:hidden;margin-top:8px}
+.rank-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+/* PROFILE */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media(max-width:600px){.profile-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:16px 18px;position:relative}
+.stat-card::before{position:absolute;top:-8px;left:12px;background:var(--bg);font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;color:var(--mut);padding:0 6px;text-transform:uppercase}
+.stat-card.val-card::before{content:"VALORANT AVG";color:#ff4655}
+.stat-card.grade-card::before{content:"ОЦЕНКИ"}
+.stat-card.streak-card::before{content:"СТРИК"}
+.stat-card.days-card::before{content:"АКТИВНОСТЬ"}
+.stat-num{font-family:var(--fh);font-size:3rem;letter-spacing:.08em;line-height:1;color:var(--acc);text-shadow:0 0 18px rgba(57,255,136,.3)}
+.stat-label{font-family:var(--fm);font-size:.65rem;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+.stat-sub{font-family:var(--fm);font-size:.7rem;color:var(--text);margin-top:3px}
+/* PLAYERS TAB */
+.players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.player-card{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:18px;transition:border-color .2s,transform .15s}
+.player-card:hover{border-color:var(--acc);transform:translateY(-2px)}
+.pc-name{font-family:var(--fh);font-size:1.6rem;letter-spacing:.08em;color:var(--acc);margin-bottom:4px}
+.pc-title{font-family:var(--fm);font-size:.68rem;color:var(--yel);letter-spacing:.1em;margin-bottom:8px}
+.pc-rank{font-family:var(--fm);font-size:.72rem;letter-spacing:.08em;margin-bottom:10px}
+.pc-stats{display:flex;gap:14px;flex-wrap:wrap}
+.pc-stat{font-family:var(--fm);font-size:.65rem;color:var(--mut);letter-spacing:.08em}
+.pc-stat span{color:var(--text);display:block;font-size:.82rem}
+.pc-ach{margin-top:10px;display:flex;gap:4px;flex-wrap:wrap}
+.pc-ach-icon{font-size:1.1rem;opacity:.8}
+.pc-streak{font-family:var(--fh);font-size:1.1rem;color:#ff6b00}
+.praise-btn{background:transparent;border:1px solid var(--bor2);color:var(--mut);font-family:var(--fm);font-size:.62rem;letter-spacing:.1em;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all .15s;text-transform:uppercase;margin-top:10px}
+.praise-btn:hover{border-color:var(--acc);color:var(--acc)}
+.praise-list{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.praise-tag{font-family:var(--fm);font-size:.58rem;color:var(--acc);background:var(--alo);border:1px solid rgba(57,255,136,.2);padding:1px 6px;border-radius:2px}
+.feed-section{margin-top:18px}
+.feed-title{font-family:var(--fh);font-size:1.4rem;letter-spacing:.12em;color:var(--mut);margin-bottom:10px}
+.feed-item{background:var(--surf);border:1px solid var(--bor);border-radius:4px;padding:10px 14px;margin-bottom:6px;display:flex;gap:12px;align-items:flex-start}
+.feed-ava{font-family:var(--fh);font-size:1.2rem;color:var(--acc);min-width:36px;text-align:center}
+.feed-body{flex:1}
+.feed-who{font-family:var(--fm);font-size:.68rem;color:var(--acc);letter-spacing:.08em}
+.feed-txt{font-family:var(--fu);font-size:.88rem;color:var(--text);margin-top:2px}
+.feed-time{font-family:var(--fm);font-size:.58rem;color:var(--mut);margin-top:3px;letter-spacing:.08em}
+/* TITLES */
+.title-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;margin-top:8px}
+.title-card{background:var(--surf);border:1px solid var(--bor);border-radius:4px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative}
+.title-card.owned{border-color:rgba(240,192,64,.3);background:rgba(240,192,64,.04)}
+.title-card.equipped{border-color:var(--yel);background:rgba(240,192,64,.1)}
+.title-card.locked{opacity:.3;cursor:default;filter:grayscale(.6)}
+.tc-name{font-family:var(--fm);font-size:.72rem;letter-spacing:.08em;color:var(--text);margin-bottom:3px}
+.tc-req{font-family:var(--fm);font-size:.58rem;color:var(--mut);letter-spacing:.06em;line-height:1.4}
+.tc-eq{position:absolute;top:8px;right:8px;font-size:.6rem;color:var(--yel)}
+/* ACHIEVEMENTS */
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:8px;margin-bottom:16px}
+.ac{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:14px;transition:border-color .2s;position:relative;overflow:hidden}
+.ac.ul{border-color:rgba(57,255,136,.28);background:rgba(57,255,136,.035)}
+.ac.lk{opacity:.35;filter:grayscale(.5)}
+.ai{font-size:1.8rem;margin-bottom:5px}
+.an{font-family:var(--fm);font-size:.72rem;letter-spacing:.08em;color:var(--text);margin-bottom:3px}
+.adsc{font-family:var(--fm);font-size:.6rem;color:var(--mut);letter-spacing:.07em;line-height:1.4}
+.adt{font-family:var(--fm);font-size:.55rem;color:var(--acc);letter-spacing:.08em;margin-top:5px}
+.anw{position:absolute;top:8px;right:8px;background:var(--yel);color:#000;font-family:var(--fm);font-size:.52rem;letter-spacing:.1em;padding:1px 5px;border-radius:1px}
+.ach-sec-title{font-family:var(--fh);font-size:1.1rem;letter-spacing:.14em;color:var(--mut);margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--bor)}
+/* CHARTS */
+.cw{position:relative;background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:18px;margin-bottom:14px}
+.cw::before{content:attr(data-lbl);position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px}
+.ce{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.7rem;letter-spacing:.14em;color:var(--mut2);text-transform:uppercase}
+/* HISTORY */
+.hs{margin-top:32px}
+.hh{font-family:var(--fh);font-size:1.4rem;letter-spacing:.16em;color:var(--mut);margin-bottom:12px}
+.hg{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px}
+.hc{background:var(--surf);border:1px solid var(--bor);border-radius:4px;padding:10px 12px;cursor:pointer;transition:all .15s}
+.hc:hover{border-color:var(--acc);transform:translateY(-1px)}
+.hc.aday{border-color:var(--acc);background:var(--alo)}
+.hdate{font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;color:var(--mut);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.hsc{font-family:var(--fh);font-size:2rem;letter-spacing:.1em;color:var(--acc);line-height:1}
+.hsc span{font-size:.95rem;color:var(--mut)}
+.hbar{margin-top:6px;height:3px;background:var(--bor);border-radius:2px;overflow:hidden}
+.hbf{height:100%;background:var(--acc);border-radius:2px}
+.est{font-family:var(--fm);font-size:.7rem;letter-spacing:.14em;color:var(--mut2);text-transform:uppercase}
+/* VCS */
+.vcs-block{display:flex;align-items:center;gap:18px;padding:14px 22px;background:rgba(255,50,70,.05);border:1px solid rgba(255,50,70,.2);border-radius:4px;position:relative;margin-left:auto;min-width:120px;flex-shrink:0}
+.vcs-block::before{content:"COMBAT RATING";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.6rem;letter-spacing:.2em;color:#ff4655;padding:0 7px}
+.vcs-grade{font-family:var(--fh);font-size:3.8rem;line-height:1;letter-spacing:.04em;text-shadow:0 0 28px currentColor;min-width:64px;text-align:center;transition:color .3s}
+.vcs-info{display:flex;flex-direction:column;gap:3px}
+.vcs-label{font-family:var(--fm);font-size:.58rem;letter-spacing:.16em;color:#ff4655;text-transform:uppercase}
+.vcs-detail{font-family:var(--fm);font-size:.66rem;color:var(--text);letter-spacing:.06em;line-height:1.7}
+.vcs-badge{font-family:var(--fh);font-size:.82rem;letter-spacing:.1em;margin-top:4px}
+/* SUMMARY */
+.sumbar{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:16px 22px;margin-bottom:14px;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+.sumbar::before{content:"ЭТА НЕДЕЛЯ";position:absolute;top:-9px;left:14px;background:var(--bg);font-family:var(--fm);font-size:.65rem;letter-spacing:.22em;color:var(--mut);padding:0 7px}
+.sum-item{display:flex;flex-direction:column;gap:2px}
+.sum-val{font-family:var(--fh);font-size:1.6rem;letter-spacing:.08em;line-height:1}
+.sum-lbl{font-family:var(--fm);font-size:.58rem;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
+.sum-delta{font-family:var(--fm);font-size:.6rem;letter-spacing:.08em;margin-top:1px}
+.sum-delta.up{color:var(--acc)}.sum-delta.dn{color:var(--red)}.sum-delta.eq{color:var(--mut)}
+/* ANALYSIS */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:600px){.analysis-grid{grid-template-columns:1fr}}
+.ana-card{background:var(--surf);border:1px solid var(--bor);border-radius:5px;padding:16px 18px;position:relative}
+.ana-card::before{position:absolute;top:-8px;left:12px;background:var(--bg);font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;color:var(--mut);padding:0 6px;text-transform:uppercase}
+.ana-card.corr::before{content:"КОРРЕЛЯЦИЯ K/D"}
+.ana-card.weekday::before{content:"ПО ДНЯМ НЕДЕЛИ"}
+.ana-card.best::before{content:"ЛУЧШИЙ КВЕСТ"}
+.ana-card.worst::before{content:"СЛАБЫЙ ДЕНЬ"}
+.ana-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.ana-bar-wrap{flex:1;height:6px;background:var(--bor);border-radius:3px;overflow:hidden}
+.ana-bar{height:100%;border-radius:3px;transition:width .6s ease}
+.ana-name{font-family:var(--fm);font-size:.62rem;color:var(--text);letter-spacing:.05em;min-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ana-val{font-family:var(--fh);font-size:.9rem;min-width:36px;text-align:right}
+.ana-insight{font-family:var(--fm);font-size:.7rem;color:var(--text);letter-spacing:.06em;line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid var(--bor)}
+.ana-insight b{color:var(--acc)}
+/* TOAST */
+.tc-wrap{position:fixed;bottom:24px;right:24px;z-index:8000;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.ti{background:var(--surf3);border:1px solid var(--bor2);color:var(--text);font-family:var(--fm);font-size:.72rem;letter-spacing:.1em;padding:10px 18px;border-radius:4px;animation:ts .3s ease both;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.ti.red{border-color:rgba(192,132,252,.3);color:var(--pur)}
+@keyframes ts{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="corner ctlx"></div><div class="corner ctrx"></div>
+<div class="corner cblx"></div><div class="corner cbrx"></div>
+<div id="ls"><div class="ll">AIM GRIND</div><div class="lb"><div class="lf"></div></div><div class="lt">Загрузка...</div></div>
+
+<div class="mbg" id="editModal">
+  <div class="modal">
+    <button class="mc" onclick="closeEdit()">&#x2715;</button>
+    <div class="mt">&#x25C8; МОИ КВЕСТЫ</div>
+    <div style="font-family:var(--fm);font-size:.62rem;color:var(--pur);letter-spacing:.1em;margin-bottom:12px;padding:7px 10px;background:rgba(192,132,252,.06);border:1px solid rgba(192,132,252,.2);border-radius:3px">Твои квесты персональные — другие не видят твои изменения</div>
+    <div id="eql"></div>
+    <button class="add-quest-btn" onclick="addQuestRow()">+ ДОБАВИТЬ КВЕСТ</button>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="msb" onclick="saveEdits()" style="flex:2">СОХРАНИТЬ</button>
+      <button class="msb" onclick="resetQuests()" style="flex:1;background:transparent;border:1px solid var(--mut2);color:var(--mut);font-size:.75rem">↺ СБРОС</button>
+    </div>
+  </div>
+</div>
+<div class="mbg" id="titlesModal">
+  <div class="modal">
+    <button class="mc" onclick="closeTitles()">&#x2715;</button>
+    <div class="mt">&#x25C8; МОИ ТИТУЛЫ</div>
+    <div class="title-grid" id="titleGrid"></div>
+  </div>
+</div>
+
+<div class="tc-wrap" id="tc"></div>
+
+<div class="app" id="app">
+  <div class="hdr">
+    <div><div class="logo">AIM<span>/</span>GRIND</div><div class="logo-sub">&#x25C8; Shared progress tracker &#x25C8;</div></div>
+    <div class="pbox">
+      <input class="pin" id="pi" type="text" maxlength="20" placeholder="Твой ник..." autocomplete="off">
+      <div class="olbl"><span class="dot"></span><span id="ol">Введи ник</span><span id="adminBadge" style="display:none" class="admin-badge">ADMIN</span></div>
+      <div class="title-display" id="titleDisplay" onclick="openTitles()">Нет титула &#x25B8;</div>
+      <div id="rankBadge" style="margin-top:6px"></div>
+    </div>
+  </div>
+
+  <div class="sumbar" id="sumbar">
+    <div class="sum-item"><div class="sum-val" id="sum-days" style="color:var(--acc)">—</div><div class="sum-lbl">Дней на неделе</div><div class="sum-delta" id="sum-days-d"></div></div>
+    <div class="sum-item"><div class="sum-val" id="sum-quests" style="color:var(--yel)">—</div><div class="sum-lbl">Квестов закрыто</div><div class="sum-delta" id="sum-quests-d"></div></div>
+    <div class="sum-item"><div class="sum-val" id="sum-grade" style="color:var(--acc)">—</div><div class="sum-lbl">Средняя оценка</div><div class="sum-delta" id="sum-grade-d"></div></div>
+    <div class="sum-item"><div class="sum-val" id="sum-kd" style="color:#ff6677">—</div><div class="sum-lbl">Средний K/D</div><div class="sum-delta" id="sum-kd-d"></div></div>
+  </div>
+
+  <div class="sbar">
+    <div class="sf">&#x1F525;</div><div class="snum" id="sn">0</div>
+    <div class="si"><div class="sl">Дней подряд</div><div class="sd" id="sd">Начни сегодня!</div></div>
+    <div class="sdots" id="sdots"></div>
+  </div>
+
+  <div class="admin-panel" id="adminPanel" style="display:none">
+    <div style="font-family:var(--fm);font-size:.65rem;color:var(--pur);letter-spacing:.12em;margin-bottom:9px">Просмотр игроков:</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="adminPlayers"></div>
+  </div>
+
+  <div class="dbar">
+    <span class="dlbl">Дата:</span>
+    <input type="date" id="dp">
+    <span class="ddisp" id="dd">&#x2014;</span>
+    <span class="sst live" id="ss"><span class="dot" style="width:6px;height:6px"></span>LIVE</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tbn act" onclick="tab('quests',this)">&#x25C8; КВЕСТЫ</button>
+    <button class="tbn" onclick="tab('chart',this)">&#x25C8; ГРАФИК</button>
+    <button class="tbn" onclick="tab('ach',this)">&#x25C8; АЧИВКИ</button>
+    <button class="tbn" onclick="tab('titles',this)">&#x25C8; ТИТУЛЫ</button>
+    <button class="tbn" onclick="tab('players',this)">&#x25C8; ИГРОКИ</button>
+    <button class="tbn" onclick="tab('profile',this)">&#x25C8; ПРОФИЛЬ</button>
+    <button class="tbn" onclick="tab('analysis',this)">&#x25C8; АНАЛИЗ</button>
+  </div>
+
+  <div class="tp act" id="tp-quests">
+    <div class="blk"><span class="blk-lbl">ОЖИДАНИЯ ОТ ДНЯ</span><div class="exp-goals" id="expGoals"></div><input class="exp-note" id="expNote" type="text" placeholder="Чего хочешь достичь сегодня?"></div>
+    <div class="blk"><span class="blk-lbl">ЦЕЛИ НЕДЕЛИ</span><div class="wgl" id="wgl"></div><div class="wgh">До 3 квестов — цели недели (подсвечены значком)</div></div>
+    <div class="pw"><div class="pm"><div><span class="pn" id="pn">0</span><span class="pden" id="pden">/10</span></div><span class="pp" id="pp">0% COMPLETE</span></div><div class="pt"><div class="pf" id="pf" style="width:0%"></div></div></div>
+    <div class="dgb">
+      <div class="dgl gX" id="dgl">&#x2014;</div>
+      <div class="dgi"><div class="dgll">Итог дня</div><div class="dgd" id="dgd">Поставь оценки квестам</div><div class="dgtitle" id="dgtitle" style="display:none"></div><div class="dgbr" id="dgbr"></div></div>
+      <div class="vcs-block" id="vcsBlock" style="display:none"><div class="vcs-grade gX" id="vcsGrade">&#x2014;</div><div class="vcs-info"><div class="vcs-label">Valorant</div><div class="vcs-detail" id="vcsDetail"></div><div class="vcs-badge" id="vcsBadge"></div></div></div>
+    </div>
+    <div class="blk">
+      <span class="blk-lbl val">VALORANT STATS</span>
+      <div class="val-grid">
+        <div class="val-field"><div class="val-label">K/D</div><input class="val-in" id="v-kd" type="text" placeholder="1.24"></div>
+        <div class="val-field"><div class="val-label">Винрейт %</div><input class="val-in" id="v-wr" type="text" placeholder="54"></div>
+        <div class="val-field"><div class="val-label">ACS</div><input class="val-in" id="v-acs" type="text" placeholder="220"></div>
+        <div class="val-field"><div class="val-label">HS %</div><input class="val-in" id="v-hs" type="text" placeholder="24"></div>
+        <div class="val-field"><div class="val-label">Ранг</div><input class="val-in" id="v-rank" type="text" placeholder="Platinum 2"></div>
+        <div class="val-field"><div class="val-label">Матчей</div><input class="val-in" id="v-matches" type="text" placeholder="5"></div>
+        <div class="val-field"><div class="val-label">W / L</div><input class="val-in" id="v-wl" type="text" placeholder="7W / 3L"></div>
+      </div>
+      <button class="val-save" onclick="saveVal()">СОХРАНИТЬ STATS</button>
+    </div>
+    <div class="blk"><span class="blk-lbl">КОММЕНТАРИЙ</span><textarea class="dci" id="dci" placeholder="Как прошла сессия?..."></textarea><div class="dcm"><span class="dch">Ctrl+Enter сохранить</span><button class="dcs" onclick="saveComment()">СОХРАНИТЬ</button></div></div>
+    <div class="slbl"><span>&#x25C8; КВЕСТЫ</span><button class="eqb" onclick="openEdit()">&#x270F; ИЗМЕНИТЬ</button></div>
+    <div class="ql" id="ql"></div>
+  </div>
+
+  <div class="tp" id="tp-chart">
+    <div class="cw" data-lbl="ПРОГРЕСС %"><canvas id="c1"></canvas><div class="ce" id="ce" style="display:none">Недостаточно данных</div></div>
+    <div class="cw" data-lbl="ОЦЕНКИ"><canvas id="c2"></canvas></div>
+    <div class="cw" data-lbl="K/D ДИНАМИКА"><canvas id="c3"></canvas><div class="ce" id="ce3">Нет данных Valorant K/D</div></div>
+  </div>
+
+  <div class="tp" id="tp-ach"><div id="achContent"></div></div>
+  <div class="tp" id="tp-titles"><div style="font-family:var(--fm);font-size:.68rem;color:var(--mut);letter-spacing:.1em;margin-bottom:14px">Нажми на разблокированный титул чтобы экипировать</div><div class="title-grid" id="allTitlesGrid"></div></div>
+  <div class="tp" id="tp-players"><div class="players-grid" id="playersGrid"></div><div class="feed-section"><div class="feed-title">&#x2014; ЛЕНТА &#x2014;</div><div id="feedList"></div></div></div>
+  <div class="tp" id="tp-profile"><div id="profileContent"></div></div>
+  <div class="tp" id="tp-analysis"><div id="analysisContent"></div></div>
+
+  <div class="hs"><div class="hh">&#x2014; ИСТОРИЯ &#x2014;</div><div class="hg" id="hg"><div class="est">Нет данных</div></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getDatabase,ref,onValue,set,get,remove}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const FC={apiKey:"AIzaSyA1qaPbYjqBUa5_AnRgWAjq4yBdDXqMNWU",authDomain:"aimg-ce6a8.firebaseapp.com",databaseURL:"https://aimg-ce6a8-default-rtdb.firebaseio.com",projectId:"aimg-ce6a8",storageBucket:"aimg-ce6a8.firebasestorage.app",messagingSenderId:"17119558159",appId:"1:17119558159:web:9cd636e85adbc17b57c17a"};
+const fb=initializeApp(FC),db=getDatabase(fb);
+const g=id=>document.getElementById(id);
+const toast=(msg,type="")=>{const c=g("tc"),el=document.createElement("div");el.className="ti"+(type==="red"?" red":"");el.textContent=msg;c.appendChild(el);setTimeout(()=>el.remove(),3400)};
+const sync=s=>{const el=g("ss");if(s==="ok"){el.className="sst ok";el.textContent="✓ SYNCED";setTimeout(()=>{el.className="sst live";el.innerHTML="<span class='dot' style='width:6px;height:6px'></span>LIVE"},2000)}else if(s==="ing"){el.className="sst ing";el.textContent="⟳ SYNC..."}else{el.className="sst err";el.textContent="✕ ERROR"}};
+
+// ── CONSTANTS ──
+const GRADES=["S+","S","A+","A","B+","B","C+","C","D+","D","F"];
+const GRADE_PTS={"S+":5.5,"S":5,"A+":4.5,"A":4,"B+":3.5,"B":3,"C+":2.5,"C":2,"D+":1.5,"D":1,"F":0};
+const GRADE_CSS={"S+":"gSP","S":"gS","A+":"gAP","A":"gA","B+":"gBP","B":"gB","C+":"gCP","C":"gC","D+":"gDP","D":"gD","F":"gF"};
+const GRADE_INFO={"S+":{d:"АБСОЛЮТНЫЙ МАКСИМУМ.",t:"Абсолют"},"S":{d:"ЛЕГЕНДА. Идеальный день.",t:"Легенда"},"A+":{d:"Превосходно. Ты на пике.",t:"Мастер"},"A":{d:"Отличный результат.",t:"Профи"},"B+":{d:"Хорошо+.",t:"Ветеран"},"B":{d:"Хорошо. Есть куда расти.",t:"Боец"},"C+":{d:"Средне+. Больше фокуса.",t:"Новичок"},"C":{d:"Средне. Больше усилий.",t:"Рекрут"},"D+":{d:"Ниже среднего.",t:"Стажёр"},"D":{d:"Слабый день.",t:"Дно"},"F":{d:"Провальный день.",t:"Тень"}};
+const EXP_OPTIONS=["Поднять аим","Без тильта","Хороший K/D","Позиционирование","Стрейфы","Просто практика","Выйти из слампа","Рекорд дня","Фокус на стрельбе","Работать над головой"];
+const DEFAULT_QUESTS=[
+  {id:1,name:"Плохие аим привычки",desc:"Видишь - целишься - стреляешь. Плавный перевод."},
+  {id:6,name:"Гейм сенс",desc:"Понимание игры."},
+  {id:7,name:"Майнд сет",desc:"Хорошее настроение без тильта."},
+  {id:8,name:"Стрельба",desc:"Сухой аим."},
+  {id:9,name:"Мувмент / Распики / Пики",desc:"Движение, выходы, позиционирование."},
+  {id:10,name:"Стрельба в движение",desc:"Стрельба со стрейфами."}
+];
+const RANKS=[
+  {id:"unranked",name:"UNRANKED",icon:"🌑",color:"#555",xp:0},{id:"bronze1",name:"BRONZE I",icon:"🥉",color:"#cd7f32",xp:10},
+  {id:"bronze2",name:"BRONZE II",icon:"🥉",color:"#cd7f32",xp:30},{id:"bronze3",name:"BRONZE III",icon:"🥉",color:"#cd7f32",xp:60},
+  {id:"silver1",name:"SILVER I",icon:"🥈",color:"#a8a9ad",xp:100},{id:"silver2",name:"SILVER II",icon:"🥈",color:"#a8a9ad",xp:150},
+  {id:"silver3",name:"SILVER III",icon:"🥈",color:"#a8a9ad",xp:220},{id:"gold1",name:"GOLD I",icon:"🥇",color:"#ffd700",xp:300},
+  {id:"gold2",name:"GOLD II",icon:"🥇",color:"#ffd700",xp:400},{id:"gold3",name:"GOLD III",icon:"🥇",color:"#ffd700",xp:550},
+  {id:"plat1",name:"PLATINUM I",icon:"💠",color:"#00e5cc",xp:700},{id:"plat2",name:"PLATINUM II",icon:"💠",color:"#00e5cc",xp:900},
+  {id:"plat3",name:"PLATINUM III",icon:"💠",color:"#00e5cc",xp:1150},{id:"dia1",name:"DIAMOND I",icon:"💎",color:"#9f6aff",xp:1400},
+  {id:"dia2",name:"DIAMOND II",icon:"💎",color:"#9f6aff",xp:1750},{id:"dia3",name:"DIAMOND III",icon:"💎",color:"#9f6aff",xp:2200},
+  {id:"asc1",name:"ASCENDANT I",icon:"🌟",color:"#39ff88",xp:2800},{id:"asc2",name:"ASCENDANT II",icon:"🌟",color:"#39ff88",xp:3500},
+  {id:"asc3",name:"ASCENDANT III",icon:"🌟",color:"#39ff88",xp:4500},{id:"immortal",name:"IMMORTAL",icon:"🔱",color:"#ff6b6b",xp:6000},
+  {id:"radiant",name:"RADIANT",icon:"☀️",color:"#ffe44d",xp:10000}
+];
+const ALL_TITLES=[
+  {id:"t_noob",name:"Нуб",icon:"🐣",req:"Первый квест",chk:s=>s.td>=1},
+  {id:"t_start",name:"Начинающий",icon:"🌱",req:"7 дней",chk:s=>s.days>=7},
+  {id:"t_week",name:"Недельный",icon:"📅",req:"14 дней",chk:s=>s.days>=14},
+  {id:"t_month",name:"Месячный",icon:"🗓",req:"30 дней",chk:s=>s.days>=30},
+  {id:"t_grinder",name:"Гриндер",icon:"⚙️",req:"60 дней",chk:s=>s.days>=60},
+  {id:"t_veteran",name:"Ветеран",icon:"🎖️",req:"100 дней",chk:s=>s.days>=100},
+  {id:"t_legend",name:"Легенда",icon:"👑",req:"200 дней",chk:s=>s.days>=200},
+  {id:"t_streak3",name:"Трёшка",icon:"🔥",req:"Стрик 3 дня",chk:s=>s.ms>=3},
+  {id:"t_streak7",name:"Неделя огня",icon:"💥",req:"Стрик 7 дней",chk:s=>s.ms>=7},
+  {id:"t_streak14",name:"Двухнедельник",icon:"⚡",req:"Стрик 14 дней",chk:s=>s.ms>=14},
+  {id:"t_streak30",name:"Феникс",icon:"🦅",req:"Стрик 30 дней",chk:s=>s.ms>=30},
+  {id:"t_s1",name:"Первый S",icon:"⭐",req:"Получи S",chk:s=>s.hs},
+  {id:"t_splus",name:"Абсолют",icon:"💎",req:"Получи S+",chk:s=>s.hsp},
+  {id:"t_perfect",name:"Перфекционист",icon:"💯",req:"Идеальный день",chk:s=>s.hp},
+  {id:"t_perf10",name:"Идеальный",icon:"🌟",req:"10 идеальных дней",chk:s=>s.perfDays>=10},
+  {id:"t_ghost",name:"Призрак",icon:"👻",req:"5 дней без F",chk:s=>s.days>=5&&s.bestGN>=1},
+  {id:"t_shadow",name:"Тень Смерти",icon:"☠️",req:"Стрик 7 + S ранг",chk:s=>s.ms>=7&&s.hs},
+  {id:"t_warlord",name:"Военачальник",icon:"⚔️",req:"50 закрытых квестов",chk:s=>s.td>=50},
+  {id:"t_titan",name:"Титан",icon:"🏔️",req:"200 закрытых квестов",chk:s=>s.td>=200},
+  {id:"t_god",name:"Бог Аима",icon:"🌌",req:"S+ + 30 дней",chk:s=>s.hsp&&s.days>=30},
+  {id:"t_eternal",name:"Вечный",icon:"♾️",req:"Immortal ранг",chk:s=>calcXP(s)>=6000},
+  {id:"t_radiant",name:"Сияющий",icon:"☀️",req:"Radiant ранг",chk:s=>calcXP(s)>=10000},
+  {id:"t_comm",name:"Комментатор",icon:"🎙️",req:"20 комментариев",chk:s=>s.comments>=20},
+  {id:"t_phoenix",name:"Феникс Аима",icon:"🦜",req:"Вернись после 7 дней пропуска",chk:s=>s.hadBreak&&s.ms>=7}
+];
+const ACH_DEFS=[
+  {cat:"📦 Прогресс",id:"q1",icon:"🎯",name:"Первый шаг",desc:"Закрой 1 квест",chk:s=>s.td>=1},
+  {cat:"📦 Прогресс",id:"q10",icon:"🔟",name:"Десятка",desc:"10 квестов",chk:s=>s.td>=10},
+  {cat:"📦 Прогресс",id:"q50",icon:"💪",name:"Полтинник",desc:"50 квестов",chk:s=>s.td>=50},
+  {cat:"📦 Прогресс",id:"q100",icon:"💯",name:"Сотня",desc:"100 квестов",chk:s=>s.td>=100},
+  {cat:"📦 Прогресс",id:"q500",icon:"🔥",name:"500 квестов",desc:"500 закрытых",chk:s=>s.td>=500},
+  {cat:"📦 Прогресс",id:"d1",icon:"📅",name:"День первый",desc:"1 день в трекере",chk:s=>s.days>=1},
+  {cat:"📦 Прогресс",id:"d7",icon:"📆",name:"Неделя",desc:"7 дней",chk:s=>s.days>=7},
+  {cat:"📦 Прогресс",id:"d30",icon:"🗓",name:"Месяц",desc:"30 дней",chk:s=>s.days>=30},
+  {cat:"📦 Прогресс",id:"d100",icon:"🏆",name:"Сотня дней",desc:"100 дней",chk:s=>s.days>=100},
+  {cat:"📦 Прогресс",id:"perfect",icon:"💯",name:"Идеальный день",desc:"Все обязательные",chk:s=>s.hp},
+  {cat:"📦 Прогресс",id:"perf5",icon:"🌟",name:"5 идеальных",desc:"5 идеальных дней",chk:s=>s.perfDays>=5},
+  {cat:"🔥 Стрики",id:"s3",icon:"🔥",name:"3 дня",desc:"Стрик 3 дня",chk:s=>s.ms>=3},
+  {cat:"🔥 Стрики",id:"s7",icon:"💥",name:"Неделя огня",desc:"7 дней",chk:s=>s.ms>=7},
+  {cat:"🔥 Стрики",id:"s14",icon:"⚡",name:"2 недели",desc:"14 дней",chk:s=>s.ms>=14},
+  {cat:"🔥 Стрики",id:"s30",icon:"👑",name:"Месяц",desc:"30 дней",chk:s=>s.ms>=30},
+  {cat:"🔥 Стрики",id:"s100",icon:"🌌",name:"100 дней подряд",desc:"Настоящая легенда",chk:s=>s.ms>=100},
+  {cat:"🏅 Ранги",id:"gany",icon:"🎖",name:"Первая оценка",desc:"Получи любую",chk:s=>s.anyGrade},
+  {cat:"🏅 Ранги",id:"gB",icon:"🥉",name:"Бронза",desc:"B или выше",chk:s=>s.bestGN>=3},
+  {cat:"🏅 Ранги",id:"gA",icon:"🥈",name:"Серебро",desc:"A или выше",chk:s=>s.bestGN>=4},
+  {cat:"🏅 Ранги",id:"gS",icon:"🥇",name:"Золото",desc:"S ранг",chk:s=>s.hs},
+  {cat:"🏅 Ранги",id:"gSP",icon:"💎",name:"Абсолют",desc:"S+ ранг",chk:s=>s.hsp},
+  {cat:"🏅 Ранги",id:"rank_plat",icon:"💠",name:"Platinum",desc:"Platinum ранг в трекере",chk:s=>calcXP(s)>=700},
+  {cat:"🏅 Ранги",id:"rank_dia",icon:"💎",name:"Diamond",desc:"Diamond ранг",chk:s=>calcXP(s)>=1400},
+  {cat:"📊 Аналитика",id:"comm10",icon:"💬",name:"Болтун",desc:"10 комментариев",chk:s=>s.comments>=10},
+  {cat:"📊 Аналитика",id:"val1",icon:"🎯",name:"Вал-трекер",desc:"Введи stats",chk:s=>s.hasVal},
+  {cat:"📊 Аналитика",id:"kd2",icon:"💀",name:"K/D 2.0+",desc:"Средний K/D 2.0+",chk:s=>s.avgKD>=2},
+  {cat:"📊 Аналитика",id:"kd3",icon:"☠️",name:"K/D 3.0+",desc:"Средний K/D 3.0+",chk:s=>s.avgKD>=3},
+  {cat:"🔒 Секретные",id:"comeback",icon:"🔄",name:"Камбэк",desc:"???",secret:true,chk:s=>s.hadBreak&&s.ms>=3},
+  {cat:"🔒 Секретные",id:"obsessed",icon:"🤖",name:"Одержимый",desc:"???",secret:true,chk:s=>s.days>=50&&s.ms>=14},
+  {cat:"🔒 Секретные",id:"godmode",icon:"🌌",name:"Режим Бога",desc:"???",secret:true,chk:s=>s.hsp&&s.ms>=7&&s.perfDays>=3}
+];
+const VCS_TIERS=[
+  {min:0,grade:"F",color:"#884444",badge:"🩸 GHOST",desc:"Невидимка."},
+  {min:0.5,grade:"D",color:"#ff3c3c",badge:"💀 FRAGILE",desc:"Ломается под давлением."},
+  {min:0.8,grade:"D+",color:"#ff6644",badge:"🔩 IRON WILL",desc:"Держится, но едва."},
+  {min:1.0,grade:"C",color:"#d4a020",badge:"⚔️ SOLDIER",desc:"В строю."},
+  {min:1.15,grade:"C+",color:"#f0c040",badge:"🎯 MARKSMAN",desc:"Прицел стабилен."},
+  {min:1.3,grade:"B",color:"#4090dd",badge:"🛡️ GUARDIAN",desc:"Держит позиции."},
+  {min:1.5,grade:"B+",color:"#64b4ff",badge:"⚡ STRIKER",desc:"Опасен в дуэлях."},
+  {min:1.75,grade:"A",color:"#22dd66",badge:"🔥 SLAYER",desc:"Убивает стабильно."},
+  {min:2.0,grade:"A+",color:"#39ff88",badge:"💠 ELITE",desc:"Выше среднего."},
+  {min:2.5,grade:"S",color:"gold",badge:"👑 ACE",desc:"Доминирование."},
+  {min:3.0,grade:"S+",color:"#ffe44d",badge:"☀️ RADIANT",desc:"Ты — угроза."}
+];
+
+// ── STATE ──
+let cur=todayStr(), plyR=localStorage.getItem("ag_p")||"", viewPlayer=null;
+let all={}, allPlayers={}, qDefs=[...DEFAULT_QUESTS], wGoals=[];
+let ch1=null,ch2=null,ch3=null, newA=new Set();
+let dayUn=null, playerConfUn=null, playerDaysUn=null;
+
+function todayStr(){return new Date().toISOString().split("T")[0]}
+const isAdmin=()=>plyR.toLowerCase()==="admin";
+const viewAs=()=>viewPlayer||plyR;
+const dayPath=(d,p)=>"days/"+(p||viewAs())+"/"+d;
+const needP=()=>{if(!plyR){g("pi").focus();g("pi").style.borderBottomColor="var(--red)";setTimeout(()=>g("pi").style.borderBottomColor="",1400);return false}return true};
+
+// ── HELPERS ──
+function calcRank(xp){let r=RANKS[0];for(const rk of RANKS){if(xp>=rk.xp)r=rk;else break;}return r}
+function calcXP(s){return s.td*2+s.days*5+s.ms*3+s.perfDays*10+(s.hs?20:0)+(s.hsp?50:0)+s.comments}
+function calcG(gr){
+  const activeIds=new Set(qDefs.map(q=>String(q.id)));
+  const r=Object.entries(gr).filter(([k,v])=>v&&!k.includes("_")&&activeIds.has(k));
+  if(!r.length)return null;
+  const avg=r.reduce((s,[,v])=>s+(GRADE_PTS[v]||0),0)/r.length;
+  if(avg>=5.3)return"S+";if(avg>=4.8)return"S";if(avg>=4.3)return"A+";if(avg>=3.8)return"A";if(avg>=3.3)return"B+";if(avg>=2.8)return"B";if(avg>=2.3)return"C+";if(avg>=1.8)return"C";if(avg>=1.3)return"D+";if(avg>=0.8)return"D";return"F"
+}
+
+// ── BOOT ──
+let _bootDone=false;
+function bootDone(){if(_bootDone)return;_bootDone=true;g("ls").classList.add("h");g("app").style.opacity="1"}
+setTimeout(bootDone,5000);
+
+g("pi").value=plyR;
+g("dp").value=cur;
+updDD();
+
+// Global quests (defaults for new players)
+onValue(ref(db,"config/quests"),s=>{
+  const gq=s.val();
+  if(gq&&!plyR)qDefs=gq; // only apply global if no player set
+  renderExpGoals();bootDone();
+});
+
+// All players presence
+onValue(ref(db,"players"),s=>{
+  allPlayers=s.val()||{};
+  renderAdminPanel();
+  if(g("tp-players").classList.contains("act"))renderPlayers();
+});
+
+// All days (for streaks, history, stats of all players)
+onValue(ref(db,"days"),s=>{
+  all=s.val()||{};
+  renderHist();renderStreak();renderSummary();
+  if(g("tp-chart").classList.contains("act"))drawCharts();
+  if(g("tp-ach").classList.contains("act"))renderAch();
+  if(g("tp-players").classList.contains("act"))renderPlayers();
+  hiH();
+});
+
+subDay(cur);
+
+// Player input — debounced register, immediate config load
+let _regT=null;
+g("pi").addEventListener("input",()=>{
+  plyR=g("pi").value.trim();
+  localStorage.setItem("ag_p",plyR);
+  g("ol").textContent=plyR?plyR+" — онлайн":"Введи ник";
+  g("adminBadge").style.display=isAdmin()?"inline":"none";
+  g("adminPanel").style.display=isAdmin()?"block":"none";
+  if(_regT)clearTimeout(_regT);
+  if(plyR&&!isAdmin())_regT=setTimeout(registerAndSubscribe,700);
+  else if(!plyR)unsubPlayerConf();
+  subDay(cur);
+  updTitleDisplay();renderAdminPanel();renderSummary();
+});
+g("pi").dispatchEvent(new Event("input"));
+if(plyR&&!isAdmin())registerAndSubscribe();
+
+g("dp").addEventListener("change",()=>{cur=g("dp").value;updDD();subDay(cur);hiH()});
+g("dci").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.ctrlKey){e.preventDefault();saveComment()}});
+g("expNote").addEventListener("blur",saveExpNote);
+
+// Live VCS preview while typing stats (no need to save first)
+["v-kd","v-wr","v-acs","v-hs","v-rank","v-matches"].forEach(id=>{
+  const el=g(id);if(!el)return;
+  el.addEventListener("input",()=>{
+    updVCS({kd:g("v-kd").value,wr:g("v-wr").value,acs:g("v-acs").value,hs:g("v-hs").value});
+  });
+});
+
+// ── PLAYER REGISTRATION & CONFIG ──
+async function registerAndSubscribe(){
+  if(!plyR||isAdmin())return;
+  // Register presence
+  const r=ref(db,"players/"+plyR);
+  const s=await get(r);const d=s.val()||{};
+  d.name=plyR;d.lastSeen=Date.now();
+  await set(r,d);
+  subPlayerConf();
+}
+
+function unsubPlayerConf(){
+  if(playerConfUn){playerConfUn();playerConfUn=null;}
+  if(playerDaysUn){playerDaysUn();playerDaysUn=null;}
+}
+
+function subPlayerConf(){
+  unsubPlayerConf();
+  if(!plyR||isAdmin())return;
+  playerConfUn=onValue(ref(db,"players/"+plyR),snap=>{
+    const pd=snap.val()||{};
+    qDefs=pd.quests&&pd.quests.length?pd.quests:[...DEFAULT_QUESTS];
+    wGoals=pd.weekGoals||[];
+    renderWG();
+    updTitleDisplay();
+    if(all[plyR])renderSummary(); // only if days already loaded
+  });
+  // Subscribe to all player's days so renderSummary has full week data
+  if(playerDaysUn){playerDaysUn();playerDaysUn=null;}
+  playerDaysUn=onValue(ref(db,"days/"+plyR),snap=>{
+    all[plyR]=snap.val()||{};
+    renderSummary();
+    renderHist();
+    if(g("tp-chart").classList.contains("act"))drawCharts();
+  });
+}
+
+// ── DAY SUBSCRIPTION ──
+function subDay(d){
+  if(dayUn)dayUn();
+  dayUn=onValue(ref(db,dayPath(d)),s=>{
+    const data=s.val()||{};
+    // Keep local all cache in sync so renderSummary reflects current day
+    if(viewAs()){if(!all[viewAs()])all[viewAs()]={};all[viewAs()][d]=data;}
+    renderDay(data);
+    renderSummary();
+  });
+}
+
+// ── WRITE FUNCTIONS ──
+async function toggleQ(qid){
+  if(!needP())return;
+  if(isAdmin()&&viewPlayer)return;
+  sync("ing");
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  if(!d.completed)d.completed={};
+  const k=String(qid),on=!!d.completed[k];
+  if(!on){const w=d.completed[k+"_who"]||[];if(!w.includes(plyR))w.push(plyR);d.completed[k]=true;d.completed[k+"_who"]=w;}
+  else{d.completed[k]=false;d.completed[k+"_who"]=[];}
+  await set(r,d);sync("ok");
+}
+
+async function setGrade(qid,gr){
+  if(!needP())return;
+  if(isAdmin()&&viewPlayer)return;
+  sync("ing");
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  if(!d.grades)d.grades={};
+  d.grades[qid]=d.grades[qid]===gr?null:gr;
+  await set(r,d);sync("ok");
+}
+
+async function addNote(qid){
+  if(!needP())return;
+  const ta=g("nta-"+qid);const txt=ta.value.trim();if(!txt)return;
+  sync("ing");
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  if(!d.notes)d.notes={};if(!d.notes[qid])d.notes[qid]=[];
+  d.notes[qid].push({p:plyR,t:txt,ts:Date.now(),admin:isAdmin()});
+  await set(r,d);ta.value="";sync("ok");
+}
+
+async function saveComment(){
+  if(!plyR)return;sync("ing");
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  d.comment=g("dci").value.trim();
+  await set(r,d);sync("ok");toast("💬 Сохранено");
+}
+
+async function saveVal(){
+  if(!needP())return;sync("ing");
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  d.val={kd:g("v-kd").value,wr:g("v-wr").value,acs:g("v-acs").value,hs:g("v-hs").value,rank:g("v-rank").value,matches:g("v-matches").value,wl:g("v-wl").value};
+  await set(r,d);
+  updVCS(d.val);
+  sync("ok");toast("🎯 Valorant stats сохранены");
+}
+
+async function saveExpNote(){
+  if(!plyR)return;
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  d.expNote=g("expNote").value;
+  await set(r,d);
+}
+
+async function toggleExpGoal(goal){
+  if(!plyR)return;
+  const r=ref(db,dayPath(cur));
+  const s=await get(r);const d=s.val()||{};
+  if(!d.expGoals)d.expGoals=[];
+  const i=d.expGoals.indexOf(goal);
+  if(i>=0)d.expGoals.splice(i,1);else d.expGoals.push(goal);
+  await set(r,d);
+}
+
+async function togWG(qid){
+  if(!needP())return;
+  const i=wGoals.indexOf(qid);
+  if(i>=0)wGoals.splice(i,1);
+  else if(wGoals.length<3)wGoals.push(qid);
+  else{toast("Максимум 3 цели недели");return;}
+  renderWG();
+  await set(ref(db,"players/"+plyR+"/weekGoals"),wGoals);
+}
+
+async function equipTitle(tid){
+  if(!plyR)return;
+  await set(ref(db,"players/"+plyR+"/equippedTitle"),tid);
+  updTitleDisplay();toast("✨ Титул экипирован");
+  if(g("titlesModal").classList.contains("op"))renderTitleModal();
+}
+
+// ── RENDER DAY ──
+function renderDay(data){
+  const comp=data.completed||{},notes=data.notes||{},grades=data.grades||{};
+  const req=qDefs;
+  let dn=0;req.forEach(q=>{if(comp[q.id])dn++;});
+  const pct=req.length?Math.round(dn/req.length*100):0;
+  g("pf").style.width=pct+"%";g("pn").textContent=dn;g("pden").textContent="/"+req.length;g("pp").textContent=pct+"% COMPLETE";
+  updGrade(grades);
+  g("dci").value=data.comment||"";
+  g("expNote").value=data.expNote||"";
+  // Restore expGoals buttons
+  const eg=data.expGoals||[];
+  document.querySelectorAll(".exp-goal-btn").forEach(b=>b.classList.toggle("sel",eg.includes(b.dataset.goal)));
+  // Restore val fields
+  const v=data.val||{};
+  ["kd","wr","acs","hs","rank","matches","wl"].forEach(k=>{const el=g("v-"+k);if(el)el.value=v[k]||"";});
+  updVCS(data.val||null);
+  // Remember open note panels
+  const openP=new Set();document.querySelectorAll(".np.op").forEach(e=>openP.add(e.dataset.qid));
+  g("ql").innerHTML="";
+  const ro=isAdmin()&&viewPlayer;
+  qDefs.forEach((q,i)=>{
+    const done=!!comp[q.id],who=comp[q.id+"_who"]||[],qn=notes[q.id]||[],qgr=grades[q.id]||null;
+    const isGoal=wGoals.includes(q.id),panOpen=openP.has(String(q.id));
+    const row=document.createElement("div");
+    row.className="qr"+(done?" done":"");
+    row.style.animationDelay=(i*.024)+"s";
+    const whoH=who.map(w=>"<span class='wtag'>"+w+"</span>").join("");
+    const notH=qn.length?qn.map(n=>{const t=new Date(n.ts).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});return"<div class='ne'><span class='nm'><span style='"+(n.admin?"color:var(--pur)":"color:var(--acc)")+"'>"+n.p+(n.admin?" [A]":"")+"</span> "+t+"</span><span>"+n.t+"</span></div>"}).join(""):"<div class='nn'>Нет заметок</div>";
+    const grH=GRADES.map(gr=>"<button class='gbtn "+(qgr===gr?"a"+gr.replace("+","P"):"")+"' onclick='W.gr("+q.id+",["+JSON.stringify(gr)+"])'>"+gr+"</button>").join("");
+    row.innerHTML="<div class='qnum'>"+(i+1)+"</div>"+
+      "<div class='qbody'><div class='qtitle'>"+q.name+
+        (done?"<span class='badge bdone'>DONE</span>":"")+
+        (isGoal?"<span class='badge bgoal'>★ ЦЕЛЬ</span>":"")+
+        "<div class='wlist'>"+whoH+"</div></div>"+
+        "<div class='qdesc'>"+q.desc+"</div></div>"+
+      "<div class='gp'>"+grH+"</div>"+
+      "<div class='qa'>"+
+        "<button class='qbtn "+(qn.length||panOpen?"non":"")+"' onclick='W.tn("+q.id+")'>✏</button>"+
+        "<button class='qbtn ck' onclick='W.tq("+q.id+")'>"+(done?"✓":"○")+"</button>"+
+        "<button class='qbtn del' onclick='W.dq("+q.id+")' title='Удалить квест'>✕</button>"+
+      "</div>"+
+      "<div class='np "+(panOpen?"op":"")+"' data-qid='"+q.id+"' id='np-"+q.id+"'>"+
+        "<div class='nh'>"+notH+"</div>"+
+        "<div class='nc'><textarea class='ni' id='nta-"+q.id+"' placeholder='Добавить заметку...' onkeydown='if(event.key==\"Enter\"&&!event.shiftKey){event.preventDefault();W.an("+q.id+")}' ></textarea>"+
+        "<button class='ns' onclick='W.an("+q.id+")'>SEND ↵</button></div></div>";
+    g("ql").appendChild(row);
+  });
+}
+
+// ── GRADE ──
+function updGrade(gr){
+  const gv=calcG(gr);
+  g("dgl").className="dgl "+(gv?GRADE_CSS[gv]:"gX");
+  g("dgl").textContent=gv||"—";
+  g("dgd").textContent=gv?GRADE_INFO[gv].d:"Поставь оценки квестам";
+  if(gv){
+    const ti=g("dgtitle");ti.style.display="block";ti.className="dgtitle "+GRADE_CSS[gv];ti.textContent="⬡ "+GRADE_INFO[gv].t;
+    const c={};GRADES.forEach(gr2=>c[gr2]=0);
+    const activeGrades=qDefs.map(q=>gr[q.id]).filter(Boolean);
+    activeGrades.forEach(x=>{if(c[x]!==undefined)c[x]++;});
+    g("dgbr").textContent=GRADES.filter(x=>c[x]>0).map(x=>x+"×"+c[x]).join(" · ")+" · "+activeGrades.length+"/"+qDefs.length;
+  }else{g("dgtitle").style.display="none";g("dgbr").textContent="";}
+}
+
+// ── VCS ──
+function updVCS(val){
+  const block=g("vcsBlock");
+  if(!val||(!val.kd&&!val.acs)){block.style.display="none";return;}
+  const kd=parseFloat(val.kd)||0,wr=parseFloat(val.wr)||50,acs=parseFloat(val.acs)||0;
+  // ACS is primary performance metric (0-500+ scale, average ~230)
+  // K/D secondary, WR tertiary
+  const acsScore=acs>0?(acs-230)/300:0;  // 0 at avg 230, +1 at 530, -1 at -70
+  const kdScore=kd>0?(kd-1.0)*0.8:0;     // 0 at avg KD 1.0
+  const wrScore=(wr-50)/100*0.5;          // small bonus/malus
+  const comp=acsScore*0.55+kdScore*0.30+wrScore*0.15+1.5; // center around 1.5 = B+
+  let tier=VCS_TIERS[0];for(const t of VCS_TIERS){if(comp>=t.min)tier=t;}
+  block.style.display="flex";
+  g("vcsGrade").className="vcs-grade "+GRADE_CSS[tier.grade];g("vcsGrade").textContent=tier.grade;
+  g("vcsDetail").textContent="K/D "+kd+(val.wr?" · WR "+val.wr+"%":"")+(acs?" · ACS "+Math.round(acs):"");
+  g("vcsBadge").textContent=tier.badge+" — "+tier.desc;
+  g("vcsBadge").className="vcs-badge "+GRADE_CSS[tier.grade];
+}
+
+// ── STREAK ──
+function renderStreak(){
+  const pData=(all[viewAs()])||{};const today=todayStr();
+  const todayHas=pData[today]&&Object.values(pData[today].completed||{}).some(v=>v===true);
+  const yest=(()=>{const d=new Date(today+"T00:00:00");d.setDate(d.getDate()-1);return d.toISOString().split("T")[0]})();
+  let chk=todayHas?today:yest,streak=0;
+  while(true){const d=pData[chk];const has=d&&Object.values(d.completed||{}).some(v=>v===true);if(!has)break;streak++;const dt=new Date(chk+"T00:00:00");dt.setDate(dt.getDate()-1);chk=dt.toISOString().split("T")[0];}
+  g("sn").textContent=streak;
+  g("sd").textContent=streak===0?"Начни сегодня!":streak<3?"Хорошее начало!":streak<7?"Продолжай!":streak<14?"Огонь!":streak<30?"🏆 Серьёзный гринд!":streak<60?"👑 ЛЕГЕНДА!":"🌌 РАДИАНТ";
+  const dots=g("sdots");dots.innerHTML="";
+  for(let i=13;i>=0;i--){const dt=new Date(today+"T00:00:00");dt.setDate(dt.getDate()-i);const ds=dt.toISOString().split("T")[0];const has=pData[ds]&&Object.values(pData[ds].completed||{}).some(v=>v===true);const div=document.createElement("div");div.className="sdot"+(has?" on":"")+(ds===today?" td":"");div.title=ds;div.textContent=has?"✓":"";dots.appendChild(div);}
+}
+
+// ── ADMIN ──
+function renderAdminPanel(){
+  if(!isAdmin())return;
+  const panel=g("adminPlayers");panel.innerHTML="";
+  const sb=document.createElement("button");sb.className="aplayer-btn"+(!viewPlayer?" active":"");sb.textContent="МОЙ ВИД";sb.onclick=()=>{viewPlayer=null;subDay(cur);renderStreak();renderHist();renderAdminPanel();};panel.appendChild(sb);
+  Object.keys(allPlayers).forEach(p=>{const btn=document.createElement("button");btn.className="aplayer-btn"+(viewPlayer===p?" active":"");btn.textContent=p;btn.onclick=()=>{viewPlayer=p;subDay(cur);renderStreak();renderHist();renderAdminPanel();toast("👁 "+p,"red")};panel.appendChild(btn);});
+}
+
+// ── WEEK GOALS ──
+function renderWG(){
+  g("wgl").innerHTML="";
+  qDefs.forEach(q=>{
+    const b=document.createElement("div");b.className="wgt"+(wGoals.includes(q.id)?" sel":"");
+    b.textContent=q.name;b.onclick=()=>togWG(q.id);g("wgl").appendChild(b);
+  });
+}
+
+// ── EXP GOALS ──
+function renderExpGoals(){
+  const c=g("expGoals");if(!c)return;c.innerHTML="";
+  EXP_OPTIONS.forEach(opt=>{
+    const b=document.createElement("button");b.className="exp-goal-btn";b.dataset.goal=opt;b.textContent=opt;
+    b.onclick=()=>{b.classList.toggle("sel");toggleExpGoal(opt);};
+    c.appendChild(b);
+  });
+}
+
+// ── STATS ──
+function getStats(playerName){
+  const pn=playerName||viewAs();const pData=(all[pn])||{};
+  let td=0,hs=false,hsp=false,hp=false,ms=0,str=0,prev=null,comments=0,hasVal=false,kdSum=0,kdCount=0,perfDays=0,anyGrade=false,bestGN=0,hadBreak=false;
+  const days=Object.keys(pData).length;
+  Object.keys(pData).sort().forEach(d=>{
+    const data=pData[d]||{},comp=data.completed||{};
+    const req=qDefs;let dn=0;req.forEach(q=>{if(comp[q.id]){dn++;td++;}});
+    if(dn===req.length&&req.length>0){hp=true;perfDays++;}
+    const gv=calcG(data.grades||{});
+    if(gv){anyGrade=true;const gn=GRADE_PTS[gv]||0;if(gn>bestGN)bestGN=gn;if(gv==="S")hs=true;if(gv==="S+")hsp=true;}
+    if(data.comment)comments++;
+    if(data.val&&data.val.kd){hasVal=true;const kd=parseFloat(data.val.kd);if(!isNaN(kd)){kdSum+=kd;kdCount++;}}
+    const has=Object.values(comp).some(v=>v===true);
+    if(!has){if(str>0)hadBreak=true;str=0;prev=null;return;}
+    if(prev){const dt=new Date(prev+"T00:00:00");dt.setDate(dt.getDate()+1);str=dt.toISOString().split("T")[0]===d?str+1:1;}else str=1;
+    ms=Math.max(ms,str);prev=d;
+  });
+  return{td,hs,hsp,hp,ms,days,comments,hasVal,avgKD:kdCount?Math.round(kdSum/kdCount*100)/100:0,kdCount,perfDays,anyGrade,bestGN,hadBreak};
+}
+
+// ── ACHIEVEMENTS ──
+function renderAch(){
+  const stats=getStats();const saved=JSON.parse(localStorage.getItem("ag_ach_"+plyR)||"{}");
+  const content=g("achContent");content.innerHTML="";
+  const cats=[...new Set(ACH_DEFS.map(a=>a.cat))];
+  cats.forEach(cat=>{
+    const title=document.createElement("div");title.className="ach-sec-title";title.textContent=cat;content.appendChild(title);
+    const grid=document.createElement("div");grid.className="ag";
+    ACH_DEFS.filter(a=>a.cat===cat).forEach(a=>{
+      const ul=a.chk(stats),wasUl=!!saved[a.id];
+      if(ul&&!wasUl){saved[a.id]=new Date().toLocaleDateString("ru-RU");newA.add(a.id);toast("🏆 "+a.name);}
+      const card=document.createElement("div");card.className="ac"+(ul?" ul":" lk");
+      const sec=a.secret&&!ul;
+      card.innerHTML="<div class='ai'>"+(sec?"❓":a.icon)+"</div><div class='an'>"+(sec?"???":a.name)+"</div><div class='adsc'>"+(sec?"Секретное":a.desc)+"</div>"+(ul&&saved[a.id]?"<div class='adt'>"+saved[a.id]+"</div>":"")+(newA.has(a.id)?"<div class='anw'>NEW</div>":"");
+      grid.appendChild(card);
+    });
+    localStorage.setItem("ag_ach_"+plyR,JSON.stringify(saved));
+    content.appendChild(grid);
+  });
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  if(!plyR){g("profileContent").innerHTML="<div class='est'>Введи ник чтобы увидеть профиль</div>";return;}
+  const stats=getStats(plyR);const xp=calcXP(stats);const rank=calcRank(xp);
+  const nextRankIdx=RANKS.findIndex(r=>r.id===rank.id)+1;const nextRank=RANKS[nextRankIdx];
+  const rankPct=nextRank?Math.min(100,Math.round((xp-rank.xp)/(nextRank.xp-rank.xp)*100)):100;
+  const eq=allPlayers[plyR]?.equippedTitle;const t=ALL_TITLES.find(x=>x.id===eq);
+  const pData=(all[plyR])||{};
+  const grades=Object.values(pData).map(d=>calcG(d.grades||{})).filter(Boolean);
+  const avgGNum=grades.length?grades.reduce((s,g)=>s+(GRADE_PTS[g]||0),0)/grades.length:0;
+  const avgG=avgGNum>=5.3?"S+":avgGNum>=4.8?"S":avgGNum>=4.3?"A+":avgGNum>=3.8?"A":avgGNum>=3.3?"B+":avgGNum>=2.8?"B":avgGNum>=2.3?"C+":avgGNum>=1.8?"C":avgGNum>=1.3?"D+":avgGNum>=0.8?"D":grades.length?"F":null;
+  const valDays=Object.values(pData).filter(d=>d.val&&d.val.kd);
+  const avgKD=valDays.length?Math.round(valDays.reduce((s,d)=>s+parseFloat(d.val.kd||0),0)/valDays.length*100)/100:null;
+  const avgWR=valDays.length?Math.round(valDays.reduce((s,d)=>s+parseFloat(d.val.wr||0),0)/valDays.length):null;
+  const avgACS=valDays.length?Math.round(valDays.reduce((s,d)=>s+parseFloat(d.val.acs||0),0)/valDays.length):null;
+  const owned=ALL_TITLES.filter(tt=>tt.chk(stats));
+  const achCount=ACH_DEFS.filter(a=>a.chk(stats)).length;
+  g("profileContent").innerHTML=`
+  <div style="display:flex;align-items:center;gap:20px;margin-bottom:22px;flex-wrap:wrap">
+    <div><div style="font-family:var(--fh);font-size:3rem;color:var(--acc);letter-spacing:.08em">${plyR}</div>${t?`<div class="title-display" style="cursor:default">${t.icon} ${t.name}</div>`:""}</div>
+    <div class="rank-section" style="flex:1;min-width:220px;margin:0">
+      <div class="rank-display"><div class="rank-icon">${rank.icon}</div><div>
+        <div class="rank-name" style="color:${rank.color}">${rank.name}</div>
+        <div class="rank-xp">${xp} XP${nextRank?" · до "+nextRank.name+": "+(nextRank.xp-xp)+" XP":""}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar-track"><div class="rank-bar-fill" style="width:${rankPct}%;background:${rank.color}"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="profile-grid">
+    <div class="stat-card days-card"><div class="stat-num">${stats.days}</div><div class="stat-label">Дней в трекере</div><div class="stat-sub">Стрик: <span style="color:#ff6b00;font-weight:bold">${stats.ms}</span> дней</div></div>
+    <div class="stat-card grade-card"><div class="stat-num ${avgG?GRADE_CSS[avgG]:"gX"}">${avgG||"—"}</div><div class="stat-label">Средняя оценка</div><div class="stat-sub">${grades.length} оценённых дней</div></div>
+    <div class="stat-card val-card"><div class="stat-num" style="color:#ff6677;font-size:2.4rem">${avgKD!==null?avgKD:"—"}</div><div class="stat-label">Средний K/D</div><div class="stat-sub">${avgWR!==null?"WR: "+avgWR+"% · ACS: "+avgACS:"Нет данных Valorant"}</div></div>
+    <div class="stat-card streak-card"><div class="stat-num" style="color:#ff6b00">${stats.td}</div><div class="stat-label">Квестов закрыто</div><div class="stat-sub">${stats.perfDays} идеальных дней</div></div>
+  </div>
+  <div style="font-family:var(--fh);font-size:1.3rem;letter-spacing:.12em;color:var(--mut);margin:16px 0 10px">— ДОСТИЖЕНИЯ (${achCount}/${ACH_DEFS.length}) —</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${ACH_DEFS.filter(a=>a.chk(stats)).slice(0,12).map(a=>"<span title='"+a.name+"' style='font-size:1.5rem'>"+a.icon+"</span>").join("")}${achCount>12?"<span style='font-family:var(--fm);font-size:.7rem;color:var(--mut);align-self:center'>+"+(achCount-12)+"</span>":""}</div>
+  <div style="font-family:var(--fh);font-size:1.3rem;letter-spacing:.12em;color:var(--mut);margin:16px 0 10px">— ТИТУЛЫ (${owned.length}/${ALL_TITLES.length}) —</div>
+  <div class="title-grid">${ALL_TITLES.map(tt=>{const io=tt.chk(stats);const ie=eq===tt.id;return'<div class="title-card'+(ie?" equipped":io?" owned":" locked")+'"'+(io&&!isAdmin()?' onclick="equipTitle(\''+tt.id+'\')"':'')+' title="'+tt.req+'"><div style="font-size:1.2rem">'+tt.icon+'</div><div class="tc-name">'+tt.name+'</div>'+(ie?'<div class="tc-eq">✓</div>':'')+'</div>';}).join("")}</div>`;
+}
+
+// ── TITLES ──
+function getOwnedTitles(p){return ALL_TITLES.filter(t=>t.chk(getStats(p||plyR))).map(t=>t.id);}
+function updTitleDisplay(){const eq=allPlayers[plyR]?.equippedTitle;const t=ALL_TITLES.find(x=>x.id===eq);g("titleDisplay").textContent=t?t.icon+" "+t.name+" ▸":"Нет титула ▸";}
+function renderTitleModal(){
+  const owned=getOwnedTitles();const eq=allPlayers[plyR]?.equippedTitle;
+  const grid=g("titleGrid");grid.innerHTML="";
+  ALL_TITLES.forEach(t=>{const io=owned.includes(t.id);const ie=eq===t.id;const card=document.createElement("div");card.className="title-card"+(ie?" equipped":io?" owned":" locked");card.innerHTML="<div style='font-size:1.3rem'>"+t.icon+"</div><div class='tc-name'>"+t.name+"</div><div class='tc-req'>"+t.req+"</div>"+(ie?"<div class='tc-eq'>✓ Активен</div>":"");if(io)card.onclick=()=>{equipTitle(t.id);closeTitles();};grid.appendChild(card);});
+  if(!owned.length)grid.innerHTML="<div class='est'>Нет титулов — выполняй задачи!</div>";
+}
+function renderTitlesTab(){
+  const stats=getStats();const owned=getOwnedTitles();const eq=allPlayers[plyR]?.equippedTitle;
+  const grid=g("allTitlesGrid");grid.innerHTML="";
+  ALL_TITLES.forEach(t=>{const io=t.chk(stats);const ie=eq===t.id;const card=document.createElement("div");card.className="title-card"+(ie?" equipped":io?" owned":" locked");card.innerHTML="<div style='font-size:1.3rem'>"+t.icon+"</div><div class='tc-name'>"+t.name+"</div><div class='tc-req'>"+t.req+"</div>"+(ie?"<div class='tc-eq'>✓</div>":"");if(io&&!isAdmin())card.onclick=()=>equipTitle(t.id);grid.appendChild(card);});
+}
+
+// ── HISTORY ──
+function renderHist(){
+  const pData=(all[viewAs()])||{};const dates=Object.keys(pData).sort((a,b)=>b.localeCompare(a));
+  if(!dates.length){g("hg").innerHTML="<div class='est'>Нет данных</div>";return;}
+  g("hg").innerHTML="";
+  dates.forEach(date=>{
+    const data=pData[date]||{},comp=data.completed||{};
+    const req=qDefs;let dn=0;req.forEach(q=>{if(comp[q.id])dn++;});
+    const pct=req.length?Math.round(dn/req.length*100):0;const dg=calcG(data.grades||{});
+    const d=new Date(date+"T00:00:00");const lbl=d.toLocaleDateString("ru-RU",{day:"2-digit",month:"short"});
+    const card=document.createElement("div");card.className="hc"+(date===cur?" aday":"");card.dataset.date=date;
+    const gs=dg?"<span class='"+GRADE_CSS[dg]+"' style='font-family:var(--fh);font-size:1.1rem'>"+dg+"</span>":"";
+    card.innerHTML="<div class='hdate'><span>"+lbl+" "+d.getFullYear()+"</span>"+gs+"</div><div class='hsc'>"+dn+"<span>/"+req.length+"</span></div>"+(data.val?.kd?"<div style='font-family:var(--fm);font-size:.55rem;color:#ff6677;margin-top:2px'>K/D "+data.val.kd+"</div>":"")+"<div class='hbar'><div class='hbf' style='width:"+pct+"%'></div></div>";
+    card.onclick=()=>{cur=date;g("dp").value=date;updDD();subDay(date);hiH();window.scrollTo({top:0,behavior:"smooth"});};
+    g("hg").appendChild(card);
+  });
+}
+function hiH(){document.querySelectorAll(".hc").forEach(c=>c.classList.toggle("aday",c.dataset.date===cur));}
+
+// ── CHARTS ──
+function drawCharts(){
+  const pData=(all[viewAs()])||{};const dates=Object.keys(pData).sort().slice(-30);
+  if(dates.length<2){g("ce").style.display="flex";return;}g("ce").style.display="none";
+  const lbls=dates.map(d=>new Date(d+"T00:00:00").toLocaleDateString("ru-RU",{day:"2-digit",month:"short"}));
+  const req=qDefs;
+  const pcts=dates.map(d=>{const c=(pData[d]||{}).completed||{};let dn=0;req.forEach(q=>{if(c[q.id])dn++;});return req.length?Math.round(dn/req.length*100):0;});
+  const gvals=dates.map(d=>{const gv=calcG((pData[d]||{}).grades||{});return gv?GRADE_PTS[gv]:null;});
+  const gcols=gvals.map(v=>v>=5.5?"#ffe44d":v>=5?"gold":v>=4.5?"#39ff88":v>=4?"#22dd66":v>=3.5?"#64b4ff":v>=3?"#4090dd":v>=2.5?"#f0c040":v>=2?"#d4a020":v>=1.5?"#ff6644":v>=1?"#ff3c3c":"#884444");
+  const kdVals=dates.map(d=>{const v=(pData[d]||{}).val;return v&&v.kd?parseFloat(v.kd)||null:null;});
+  const xax={ticks:{color:"#4a6878",font:{family:"Share Tech Mono",size:10}},grid:{color:"rgba(30,46,58,.8)"}};
+  if(ch1)ch1.destroy();ch1=new Chart(g("c1"),{type:"line",data:{labels:lbls,datasets:[{label:"%",data:pcts,borderColor:"#39ff88",backgroundColor:"rgba(57,255,136,.06)",pointBackgroundColor:"#39ff88",pointRadius:4,tension:.35,fill:true,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:xax,y:{...xax,min:0,max:100}}}});
+  if(ch2)ch2.destroy();ch2=new Chart(g("c2"),{type:"bar",data:{labels:lbls,datasets:[{label:"Grade",data:gvals,backgroundColor:gcols,borderRadius:3,borderWidth:0}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const v=c.raw;return v>=5.5?"S+":v>=5?"S":v>=4.5?"A+":v>=4?"A":v>=3.5?"B+":v>=3?"B":v>=2.5?"C+":v>=2?"C":v>=1.5?"D+":v>=1?"D":"F"}}}},scales:{x:xax,y:{...xax,min:0,max:6}}}});
+  const hasKD=kdVals.some(v=>v!==null);
+  g("ce3").style.display=hasKD?"none":"flex";
+  if(hasKD){if(ch3)ch3.destroy();ch3=new Chart(g("c3"),{type:"line",data:{labels:lbls,datasets:[{label:"K/D",data:kdVals,borderColor:"#ff6677",backgroundColor:"rgba(255,70,85,.06)",pointBackgroundColor:"#ff6677",pointRadius:4,tension:.35,fill:true,borderWidth:2,spanGaps:true}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:xax,y:{...xax,min:0}}}});}
+}
+
+// ── QUEST EDITOR ──
+let editDraft=[];
+function renderEL(){editDraft=[...qDefs.map(q=>({...q}))];g("eql").innerHTML="";editDraft.forEach((q,i)=>renderEQI(q,i));}
+function renderEQI(q,i){
+  const item=document.createElement("div");item.className="eqi";item.id="eqi-"+i;
+  item.innerHTML="<div class='er'><span style='font-family:var(--fh);color:var(--mut);font-size:.95rem;min-width:20px'>"+(i+1)+"</span><input class='ein' id='en-"+i+"' value='"+q.name+"' placeholder='Название'><button class='del-quest-btn' onclick='delQuestRow("+i+")'>✕</button></div><div class='er'><input class='ein di' id='ed-"+i+"' value='"+q.desc+"' placeholder='Описание'></div>";
+  g("eql").appendChild(item);
+}
+function addQuestRow(){const nid=Math.max(...editDraft.map(q=>q.id),0)+1;editDraft.push({id:nid,name:"Новый квест",desc:"Описание"});renderEQI(editDraft[editDraft.length-1],editDraft.length-1);}
+function delQuestRow(i){editDraft.splice(i,1);renderEL();}
+async function saveEdits(){
+  const upd=editDraft.map((q,i)=>({...q,name:g("en-"+i)?.value.trim()||q.name,desc:g("ed-"+i)?.value.trim()||q.desc}));
+  if(isAdmin()){await set(ref(db,"config/quests"),upd);toast("✓ Глобальные квесты обновлены");}
+  else if(plyR){await set(ref(db,"players/"+plyR+"/quests"),upd);qDefs=upd;toast("✓ Твои квесты сохранены");}
+  closeEdit();
+}
+async function resetQuests(){
+  if(!confirm("Сбросить к дефолтным квестам?"))return;
+  if(!plyR)return;
+  await remove(ref(db,"players/"+plyR+"/quests"));
+  qDefs=[...DEFAULT_QUESTS];renderEL();toast("↺ Квесты сброшены");
+}
+
+// ── SUMMARY ──
+function renderSummary(){
+  const pData=(all[viewAs()])||{};
+  const today=new Date(todayStr()+"T00:00:00");
+  function weekDates(off){const dates=[];for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-off-i);dates.push(d.toISOString().split("T")[0]);}return dates;}
+  function weekStats(dates){
+    let days=0,quests=0,gradeSum=0,gradeCount=0,kdSum=0,kdCount=0;
+    const req=qDefs;
+    dates.forEach(d=>{const data=pData[d]||{};const comp=data.completed||{};if(Object.values(comp).some(v=>v===true))days++;req.forEach(q=>{if(comp[q.id])quests++;});const gv=calcG(data.grades||{});if(gv){gradeSum+=GRADE_PTS[gv]||0;gradeCount++;}if(data.val?.kd){const kd=parseFloat(data.val.kd);if(!isNaN(kd)){kdSum+=kd;kdCount++;}}});
+    const avgGN=gradeCount?gradeSum/gradeCount:null;
+    const avgG=avgGN===null?null:avgGN>=5.3?"S+":avgGN>=4.8?"S":avgGN>=4.3?"A+":avgGN>=3.8?"A":avgGN>=3.3?"B+":avgGN>=2.8?"B":avgGN>=2.3?"C+":avgGN>=1.8?"C":avgGN>=1.3?"D+":avgGN>=0.8?"D":"F";
+    return{days,quests,avgG,avgGN,avgKD:kdCount?Math.round(kdSum/kdCount*100)/100:null};
+  }
+  const tw=weekStats(weekDates(0)),lw=weekStats(weekDates(7));
+  function si(id,val,lval,fmt){g("sum-"+id).textContent=val!==null?fmt(val):"—";if(val!==null&&lval!==null){const d=g("sum-"+id+"-d");const diff=typeof val==="number"?val-lval:0;if(diff===0){d.className="sum-delta eq";d.textContent="= стабильно";}else if(diff>0){d.className="sum-delta up";d.textContent="▲ +"+fmt(Math.abs(diff));}else{d.className="sum-delta dn";d.textContent="▼ −"+fmt(Math.abs(diff));}}else g("sum-"+id+"-d").textContent="";}
+  si("days",tw.days,lw.days,v=>v);si("quests",tw.quests,lw.quests,v=>v);
+  g("sum-grade").textContent=tw.avgG||"—";g("sum-grade").className="sum-val "+(tw.avgG?GRADE_CSS[tw.avgG]:"");
+  if(tw.avgGN!==null&&lw.avgGN!==null){const gd=g("sum-grade-d");const diff=tw.avgGN-lw.avgGN;if(Math.abs(diff)<0.1){gd.className="sum-delta eq";gd.textContent="= стабильно";}else if(diff>0){gd.className="sum-delta up";gd.textContent="▲ лучше";}else{gd.className="sum-delta dn";gd.textContent="▼ хуже";}}
+  g("sum-kd").textContent=tw.avgKD!==null?tw.avgKD:"—";
+  if(tw.avgKD!==null&&lw.avgKD!==null){const kdd=g("sum-kd-d");const diff=Math.round((tw.avgKD-lw.avgKD)*100)/100;if(diff===0){kdd.className="sum-delta eq";kdd.textContent="= стабильно";}else if(diff>0){kdd.className="sum-delta up";kdd.textContent="▲ +"+diff;}else{kdd.className="sum-delta dn";kdd.textContent="▼ "+diff;}}
+}
+
+// ── ANALYSIS ──
+function renderAnalysis(){
+  const pData=(all[viewAs()])||{};const dates=Object.keys(pData).sort();const content=g("analysisContent");
+  if(dates.length<5){content.innerHTML="<div class='est' style='padding:40px 0;text-align:center'>Нужно минимум 5 дней</div>";return;}
+  const DAYS_RU=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];const req=qDefs;
+  const byDay={};for(let i=0;i<7;i++)byDay[i]={pct:0,count:0};
+  dates.forEach(d=>{const dow=new Date(d+"T00:00:00").getDay();const comp=(pData[d]||{}).completed||{};let dn=0;req.forEach(q=>{if(comp[q.id])dn++;});byDay[dow].pct+=req.length?dn/req.length*100:0;byDay[dow].count++;});
+  const dayAvgs=Object.keys(byDay).map(i=>({day:DAYS_RU[i],avg:byDay[i].count?Math.round(byDay[i].pct/byDay[i].count):null,count:byDay[i].count})).filter(d=>d.count>0);
+  const worstDay=dayAvgs.reduce((a,b)=>(b.avg!==null&&(a===null||b.avg<a.avg)?b:a),null);
+  const bestDay=dayAvgs.reduce((a,b)=>(b.avg!==null&&(a===null||b.avg>a.avg)?b:a),null);
+  const weekdayHTML=dayAvgs.map(d=>"<div class='ana-row'><div class='ana-name'>"+d.day+"</div><div class='ana-bar-wrap'><div class='ana-bar' style='width:"+d.avg+"%;background:"+(d.avg>=70?"var(--acc)":d.avg>=40?"var(--yel)":"var(--red)")+"'></div></div><div class='ana-val' style='color:"+(d.avg>=70?"var(--acc)":d.avg>=40?"var(--yel)":"var(--red)")+"'>"+d.avg+"%</div></div>").join("");
+  const weekdayInsight=worstDay&&bestDay?"<div class='ana-insight'>Лучший: <b>"+bestDay.day+"</b> ("+bestDay.avg+"%). Просадка: <b>"+worstDay.day+"</b> ("+worstDay.avg+"%).</div>":"";
+  const kdDays=dates.filter(d=>{const v=(pData[d]||{}).val;return v&&v.kd&&!isNaN(parseFloat(v.kd));});
+  let corrHTML="",corrInsight="";
+  if(kdDays.length>=4){
+    const qc=req.map(q=>{let wk=0,wc=0,ok=0,oc=0;kdDays.forEach(d=>{const data=pData[d]||{};const kd=parseFloat(data.val.kd);if((data.completed||{})[q.id]){wk+=kd;wc++;}else{ok+=kd;oc++;}});const aw=wc?Math.round(wk/wc*100)/100:null,ao=oc?Math.round(ok/oc*100)/100:null;const dl=aw!==null&&ao!==null?Math.round((aw-ao)*100)/100:null;return{name:q.name,delta:dl};}).filter(q=>q.delta!==null).sort((a,b)=>b.delta-a.delta);
+    const mx=Math.max(...qc.map(q=>Math.abs(q.delta)),0.01);
+    corrHTML=qc.slice(0,6).map(q=>{const pct=Math.round(Math.abs(q.delta)/mx*100);const col=q.delta>0.1?"var(--acc)":q.delta<-0.1?"var(--red)":"var(--mut)";return"<div class='ana-row'><div class='ana-name' title='"+q.name+"'>"+q.name.substring(0,14)+"</div><div class='ana-bar-wrap'><div class='ana-bar' style='width:"+pct+"%;background:"+col+"'></div></div><div class='ana-val' style='color:"+col+"'>"+(q.delta>0?"▲":"▼")+" "+Math.abs(q.delta)+"</div></div>";}).join("");
+    if(qc.length){const b=qc[0],w=qc[qc.length-1];corrInsight="<div class='ana-insight'>";if(b.delta>0.05)corrInsight+="Закрываешь <b>"+b.name.substring(0,16)+"</b> → K/D +"+b.delta+". ";if(w.delta<-0.05)corrInsight+="Без <b>"+w.name.substring(0,16)+"</b> → K/D "+w.delta+".";corrInsight+="</div>";}
+  }else{corrHTML="<div class='est' style='padding:14px 0'>Нужно ещё "+Math.max(0,4-kdDays.length)+" дней с K/D</div>";}
+  const qs=req.map(q=>{let done=0,tot=0;dates.forEach(d=>{const comp=(pData[d]||{}).completed||{};tot++;if(comp[q.id])done++;});return{name:q.name,pct:tot?Math.round(done/tot*100):0};}).sort((a,b)=>b.pct-a.pct);
+  const bqH=qs.slice(0,5).map(q=>"<div class='ana-row'><div class='ana-name' title='"+q.name+"'>"+q.name.substring(0,16)+"</div><div class='ana-bar-wrap'><div class='ana-bar' style='width:"+q.pct+"%;background:var(--acc)'></div></div><div class='ana-val' style='color:var(--acc)'>"+q.pct+"%</div></div>").join("");
+  const wqH=qs.slice(-3).reverse().map(q=>"<div class='ana-row'><div class='ana-name' title='"+q.name+"'>"+q.name.substring(0,16)+"</div><div class='ana-bar-wrap'><div class='ana-bar' style='width:"+q.pct+"%;background:var(--red)'></div></div><div class='ana-val' style='color:var(--red)'>"+q.pct+"%</div></div>").join("");
+  content.innerHTML="<div class='analysis-grid'><div class='ana-card weekday'>"+weekdayHTML+weekdayInsight+"</div><div class='ana-card corr'>"+corrHTML+corrInsight+"</div><div class='ana-card best'><div style='font-family:var(--fm);font-size:.58rem;color:var(--mut);letter-spacing:.12em;margin-bottom:8px'>ТОП ВЫПОЛНЕНИЯ</div>"+bqH+(qs[0]?"<div class='ana-insight'>Лучший: <b>"+qs[0].name+"</b> — "+qs[0].pct+"%</div>":"")+"</div><div class='ana-card worst'><div style='font-family:var(--fm);font-size:.58rem;color:var(--mut);letter-spacing:.12em;margin-bottom:8px'>ПРОБЛЕМНЫЕ</div>"+wqH+(qs.length?"<div class='ana-insight'>Провал: <b>"+qs[qs.length-1].name+"</b> — "+qs[qs.length-1].pct+"%</div>":"")+"</div></div>";
+}
+
+// ── PLAYERS ──
+async function praisePlayer(target){
+  if(!plyR||plyR===target)return;
+  const r=ref(db,"players/"+target+"/praises");const s=await get(r);const list=s.val()||[];
+  if(list.includes(plyR)){toast("Уже хвалил "+target);return;}
+  list.push(plyR);await set(r,list);
+  const fr=ref(db,"feed");const fs=await get(fr);const feed=fs.val()||[];
+  feed.unshift({who:plyR,type:"praise",target,ts:Date.now()});
+  await set(fr,feed.slice(0,50));
+  toast("🔥 "+target+" получил похвалу!");
+}
+function renderPlayers(){
+  const pg=g("playersGrid");pg.innerHTML="";
+  const players=Object.keys(allPlayers).filter(p=>p!==plyR&&p.toLowerCase()!=="admin");
+  if(!players.length){pg.innerHTML="<div class='est'>Нет других игроков</div>";renderFeed();return;}
+  players.forEach(p=>{
+    const pData=(all[p])||{};const stats=getStats(p);const xp=calcXP(stats);const rank=calcRank(xp);
+    const eq=allPlayers[p]?.equippedTitle;const t=ALL_TITLES.find(x=>x.id===eq);
+    const today=todayStr();let streak=0,chk=today;
+    while(true){const d=pData[chk];const has=d&&Object.values(d.completed||{}).some(v=>v===true);if(!has)break;streak++;const dt=new Date(chk+"T00:00:00");dt.setDate(dt.getDate()-1);chk=dt.toISOString().split("T")[0];}
+    const praises=(allPlayers[p]?.praises)||[];
+    const topAch=ACH_DEFS.filter(a=>a.chk(stats)).slice(0,5);
+    const card=document.createElement("div");card.className="player-card";
+    card.innerHTML="<div class='pc-name'>"+p+"</div>"+(t?"<div class='pc-title'>"+t.icon+" "+t.name+"</div>":"<div class='pc-title' style='color:var(--mut)'>Нет титула</div>")+"<div class='pc-rank' style='color:"+rank.color+"'>"+rank.icon+" "+rank.name+"</div><div class='pc-stats'><div class='pc-stat'>Дней<span>"+stats.days+"</span></div><div class='pc-stat'>Стрик<span class='pc-streak'>"+streak+"🔥</span></div><div class='pc-stat'>XP<span style='color:var(--acc)'>"+xp+"</span></div></div><div class='pc-ach'>"+topAch.map(a=>"<span class='pc-ach-icon' title='"+a.name+"'>"+a.icon+"</span>").join("")+"</div>"+(praises.length?"<div class='praise-list'>"+praises.map(pr=>"<span class='praise-tag'>🔥"+pr+"</span>").join("")+"</div>":"")+"<button class='praise-btn' data-p='"+p+"'>🔥 ПОХВАЛИТЬ</button>";
+    card.querySelector(".praise-btn").addEventListener("click",function(){praisePlayer(this.dataset.p);});
+    pg.appendChild(card);
+  });
+  renderFeed();
+}
+let feedUn=null;
+function renderFeed(){
+  const fl=g("feedList");if(!fl)return;
+  if(feedUn)return; // already subscribed
+  feedUn=onValue(ref(db,"feed"),s=>{
+    const feed=s.val()||[];fl.innerHTML="";
+    if(!feed.length){fl.innerHTML="<div class='est'>Лента пуста</div>";return;}
+    feed.slice(0,20).forEach(item=>{
+      const el=document.createElement("div");el.className="feed-item";
+      const d=new Date(item.ts);const lbl=d.toLocaleDateString("ru-RU",{day:"2-digit",month:"short"})+" "+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+      const txt=item.type==="praise"?"похвалил <b style='color:var(--acc)'>"+item.target+"</b> 🔥":(item.txt||"");
+      el.innerHTML="<div class='feed-ava'>"+item.who.charAt(0).toUpperCase()+"</div><div class='feed-body'><div class='feed-who'>"+item.who+"</div><div class='feed-txt'>"+txt+"</div><div class='feed-time'>"+lbl+"</div></div>";
+      fl.appendChild(el);
+    });
+  });
+}
+
+// ── UTILS ──
+function updDD(){const d=new Date(cur+"T00:00:00");g("dd").textContent=d.toLocaleDateString("ru-RU",{weekday:"short",day:"numeric",month:"long"}).toUpperCase();}
+function toggleNote(qid){g("np-"+qid).classList.toggle("op");}
+function tab(name,btn){
+  document.querySelectorAll(".tbn").forEach(b=>b.classList.remove("act"));
+  document.querySelectorAll(".tp").forEach(p=>p.classList.remove("act"));
+  btn.classList.add("act");g("tp-"+name).classList.add("act");
+  if(name==="chart")drawCharts();
+  else if(name==="ach")renderAch();
+  else if(name==="players")renderPlayers();
+  else if(name==="profile")renderProfile();
+  else if(name==="titles")renderTitlesTab();
+  else if(name==="analysis")renderAnalysis();
+}
+function openEdit(){renderEL();g("editModal").classList.add("op");}
+function closeEdit(){g("editModal").classList.remove("op");}
+function openTitles(){renderTitleModal();g("titlesModal").classList.add("op");}
+function closeTitles(){g("titlesModal").classList.remove("op");}
+
+async function deleteQuestInline(qid){
+  if(!needP())return;
+  if(!confirm("Удалить квест из твоего списка?"))return;
+  qDefs=qDefs.filter(q=>q.id!==qid);
+  if(plyR)await set(ref(db,"players/"+plyR+"/quests"),qDefs);
+  // Re-render current day data
+  const s=await get(ref(db,dayPath(cur)));
+  renderDay(s.val()||{});
+  toast("✕ Квест удалён");
+}
+
+// ── EXPOSE TO HTML ──
+window.W={tq:toggleQ,gr:(id,args)=>setGrade(id,args[0]),an:addNote,tn:toggleNote,dq:deleteQuestInline};
+window.tab=tab;window.openEdit=openEdit;window.closeEdit=closeEdit;
+window.saveEdits=saveEdits;window.addQuestRow=addQuestRow;window.delQuestRow=delQuestRow;
+window.saveComment=saveComment;window.saveVal=saveVal;
+window.openTitles=openTitles;window.closeTitles=closeTitles;window.equipTitle=equipTitle;
+window.resetQuests=resetQuests;
+</script>
+</body>
+</html>
